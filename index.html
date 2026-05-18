@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TAXI FINANCE</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+.notif{position:fixed;top:16px;right:16px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:600;animation:nIn .3s ease;max-width:320px}
+.ns{background:#1a3a1a;border:1px solid #4CAF50;color:#4CAF50}.ne{background:#3a1a1a;border:1px solid #FF5722;color:#FF5722}
+@keyframes nIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.lb{height:3px;background:#1a1a1a;overflow:hidden}.lf{height:3px;background:#F5C518;animation:la 1.5s ease infinite}
+@keyframes la{0%{width:0}80%{width:90%}100%{width:100%}}
+.nb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 10px;background:none;border:none;border-bottom:2px solid transparent;color:#555;cursor:pointer;white-space:nowrap;font-size:13px;transition:all .2s}
+.nb:hover{color:#888}.nb.act{color:#F5C518;border-bottom-color:#F5C518}
+.kc{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:14px;transition:border-color .2s}.kc:hover{border-color:#2a2a2a}
+.ab{background:#111;border:1px solid #2a2a2a;color:#888;font-size:20px;width:34px;height:34px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ab:hover{background:#1a1a1a;color:#F5C518}
+.sd{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:8px;padding:7px 5px;text-align:center;cursor:pointer;flex:1;min-width:42px;color:#ccc;transition:all .2s}
+.sd:hover{border-color:#333}.sd.sa{border-color:#F5C518;background:#1a1500}.sd.sw{background:#111}
+.tb{padding:7px 12px;border-radius:6px;border:1px solid #2a2a2a;background:#111;color:#666;cursor:pointer;font-size:12px;transition:all .2s}
+.tg{background:#1a3a1a!important;border-color:#4CAF50!important;color:#4CAF50!important}
+.tr2{background:#3a1a1a!important;border-color:#FF5722!important;color:#FF5722!important}
+.inp{outline:none}.inp:focus{border-color:#F5C518!important}
+.sb{width:100%;padding:13px;background:#F5C518;border:none;border-radius:8px;color:#000;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:1px;margin-top:8px;transition:opacity .2s;display:block}
+.sb:hover{opacity:.9}.sb:disabled{cursor:not-allowed;opacity:.5}
+.stb{padding:7px 12px;border:none;border-bottom:2px solid transparent;background:none;color:#555;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:all .2s;white-space:nowrap}
+.stb:hover{color:#aaa}.stb.sact{color:#F5C518;border-bottom-color:#F5C518}
+.dc{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:8px;padding:8px 6px;text-align:center}
+.dc.dt{border-color:rgba(245,197,24,.4);background:#1a1500}.dc.dw{border-color:#2a2a1a}
+.cd{background:#0d0d0d;border:1px solid #111;border-radius:4px;padding:3px;text-align:center;min-height:32px}
+.cd.cw{background:#111;border-color:#1a2a0a}.cd.cr{opacity:.3}
+.sysc{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:8px;margin-bottom:5px;cursor:pointer;transition:border-color .2s}
+.sysc:hover{border-color:#2a2a2a}.sysc.sych{border-color:#F5C51855}
+.sysh{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;user-select:none}
+.subh{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;font-size:11px;color:#666;font-weight:700;cursor:pointer;border-radius:5px;letter-spacing:.5px;text-transform:uppercase}
+.subh:hover{background:#111;color:#aaa}.subh.subsel{color:#F5C518}
+.partitem{padding:5px 8px 5px 16px;font-size:12px;color:#555;cursor:pointer;border-radius:4px;border-left:1px solid #222;margin-left:4px;transition:all .2s}
+.partitem:hover{color:#F5C518;background:#0f1a00;border-left-color:#F5C518}
+.partitem.psel{color:#F5C518;background:#1a1500;border-left-color:#F5C518;font-weight:600}
+.rcard{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:13px;margin-bottom:8px;transition:border-color .2s}
+.rcard:hover{border-color:#2a2a2a}
+.ocard{background:#0d0d0d;border:1px solid #1a3a1a;border-radius:10px;padding:13px;margin-bottom:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.photobox{border:2px dashed #2a2a2a;border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:6px}
+.photobox:hover{border-color:#F5C518}
+.photopreview{width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-top:8px}
+input[type=number]::-webkit-inner-spin-button{opacity:.3}
+select option{background:#111}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+// ── Helpers ───────────────────────────────────────────────────────
+const todayStr=()=>new Date().toISOString().split("T")[0];
+const fmt=n=>Number(n||0).toLocaleString("fr-FR",{minimumFractionDigits:0});
+const fmtCur=n=>`${fmt(n)} €`;
+const getWeekId=ds=>{const d=new Date(ds),j=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-j)/86400000+j.getDay()+1)/7);return`${d.getFullYear()}-W${String(w).padStart(2,"0")}`;};
+const getMonthId=ds=>ds.slice(0,7);
+const startOfWeek=ds=>{const d=new Date(ds),day=d.getDay()===0?6:d.getDay()-1,m=new Date(d);m.setDate(d.getDate()-day);return m.toISOString().split("T")[0];};
+const daysOfWeek=ws=>Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return d.toISOString().split("T")[0];});
+const fmtDate=ds=>new Date(ds).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
+const DAYS=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+const MONTHS=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
+const REASONS=["Panne véhicule","Jour de repos","Manque de clients","Météo défavorable","Problème personnel","Compétition forte","Heure de pointe manquée","Autre"];
+const INTERVENTION_TYPES=["🔄 Remplacement total de la pièce","🔧 Réparation / Soudure","⚙️ Réglage / Modification","🛢️ Entretien / Nettoyage","🔍 Diagnostic uniquement","🧰 Autre intervention"];
+const OIL_TYPES=["5W30 Synthétique","5W40 Synthétique","10W40 Semi-synthétique","15W40 Minérale","0W20 Full Synthétique","Autre"];
+const INTERVAL_OPTIONS=[{label:"5 000 km",km:5000},{label:"7 500 km",km:7500},{label:"10 000 km",km:10000},{label:"15 000 km",km:15000}];
+
+// ── Catalogue pièces ──────────────────────────────────────────────
+const CAT={
+  "🔧 MOTEUR":{
+    "Bloc moteur":["Bloc-cylindres","Carter d'huile inférieur","Carter d'huile supérieur","Joints de carter","Chemises de cylindres","Pistons (x4)","Segments de pistons","Axes de pistons","Bielles (x4)","Coussinets de bielles","Vilebrequin","Joint de vilebrequin avant","Joint de vilebrequin arrière","Volant moteur","Couronne de démarrage"],
+    "Culasse":["Culasse complète","Joint de culasse","Soupapes d'admission (x4)","Soupapes d'échappement (x4)","Guides de soupapes","Ressorts de soupapes","Poussoirs hydrauliques (x8)","Couvre-culasse","Joint de couvre-culasse","Bougies d'allumage (x4)","Bobines d'allumage (x4)"],
+    "Distribution":["Arbre à cames admission","Arbre à cames échappement","Chaîne de distribution","Tendeur de chaîne","Guide de chaîne","Carter de distribution","Variateur VVT-i"],
+    "Lubrification":["Pompe à huile","Filtre à huile","Sonde de pression d'huile","Bouchon de vidange","Joint de bouchon de vidange","Radiateur d'huile"],
+    "Refroidissement":["Pompe à eau","Thermostat","Boîtier de thermostat","Radiateur principal","Ventilateur électrique","Vase d'expansion","Durite radiateur supérieure","Durite radiateur inférieure","Sonde température liquide refroidissement"],
+    "Alimentation carburant":["Pompe à carburant","Filtre à carburant","Injecteurs (x4)","Rampe d'injection","Réservoir de carburant","Bouchon de réservoir","Canister charbon actif"],
+    "Admission d'air":["Filtre à air","Débitmètre MAF","Corps de papillon","Collecteur d'admission"],
+    "Échappement":["Collecteur d'échappement","Catalyseur","Sonde lambda amont","Sonde lambda aval","Flexible d'échappement","Silencieux arrière","Tuyau d'échappement"]
+  },
+  "⚙️ TRANSMISSION":{
+    "Boîte manuelle":["Carter de boîte","Arbre primaire","Arbre secondaire","Synchroniseurs","Fourchettes de sélection","Joint spi d'arbre de sortie"],
+    "Boîte automatique":["Convertisseur de couple","Pompe hydraulique","Embrayages multidisques","Électrovannes de commande","Calculateur TCU","Filtre de boîte automatique"],
+    "Transmission finale":["Différentiel","Demi-arbre gauche","Demi-arbre droit","Joint homocinétique intérieur gauche","Joint homocinétique intérieur droit","Joint homocinétique extérieur gauche","Joint homocinétique extérieur droit","Soufflets homocinétiques (x4)"]
+  },
+  "🕹️ EMBRAYAGE":{
+    "Embrayage":["Disque d'embrayage","Plateau de pression","Butée de débrayage","Fourchette d'embrayage","Maître-cylindre d'embrayage","Récepteur d'embrayage","Câble d'embrayage"]
+  },
+  "🔄 DIRECTION":{
+    "Direction assistée":["Crémaillère de direction","Moteur direction assistée","Colonne de direction","Rotule direction intérieure gauche","Rotule direction intérieure droite","Rotule direction extérieure gauche","Rotule direction extérieure droite","Biellette de direction gauche","Biellette de direction droite","Soufflets de crémaillère"]
+  },
+  "🛑 FREINAGE":{
+    "Freins avant":["Disque frein avant gauche","Disque frein avant droit","Plaquettes frein avant","Étrier frein avant gauche","Étrier frein avant droit","Flexible frein avant","Roulements roue avant","Capteur ABS avant gauche","Capteur ABS avant droit"],
+    "Freins arrière":["Tambour frein arrière gauche","Tambour frein arrière droit","Mâchoires / plaquettes arrière","Cylindres de roue arrière","Flexible frein arrière","Roulements roue arrière","Capteur ABS arrière gauche","Capteur ABS arrière droit"],
+    "Circuit hydraulique":["Maître-cylindre de frein","Servo-frein","Modulateur ABS+ESP","Calculateur ABS/VSC","Tuyauteries acier de frein"],
+    "Frein à main":["Câble frein à main principal","Câble secondaire gauche","Câble secondaire droit","Levier frein à main"]
+  },
+  "🔩 SUSPENSION":{
+    "Suspension avant":["Amortisseur avant gauche","Amortisseur avant droit","Ressort hélicoïdal avant gauche","Ressort hélicoïdal avant droit","Coupelle supérieure amortisseur avant","Triangle inférieur gauche","Triangle inférieur droit","Rotule triangle gauche","Rotule triangle droit","Biellette barre stab. avant gauche","Biellette barre stab. avant droit","Barre stabilisatrice avant"],
+    "Suspension arrière":["Barre de torsion arrière","Amortisseur arrière gauche","Amortisseur arrière droit","Ressort hélicoïdal arrière gauche","Ressort hélicoïdal arrière droit","Bras suspension arrière gauche","Bras suspension arrière droit","Barre stabilisatrice arrière"]
+  },
+  "🛞 ROUES & PNEUS":{
+    "Roues":["Jante acier 15p","Jante aluminium 16p","Valve de gonflage","Écrous de roue","Roue de secours"],
+    "Pneumatiques":["Pneu 175/65 R15","Pneu 185/55 R16","Kit réparation pneu crevé"]
+  },
+  "🏗️ CARROSSERIE":{
+    "Structure":["Longéron avant gauche","Longéron avant droit","Berceau moteur","Montant A","Montant B","Montant C","Plancher","Toit","Hayon"],
+    "Panneaux":["Capot moteur","Aile avant gauche","Aile avant droite","Porte avant gauche","Porte avant droite","Porte arrière gauche","Porte arrière droite","Pare-chocs avant","Pare-chocs arrière","Calandre / grille avant"],
+    "Vitrages":["Pare-brise avant","Glace porte avant gauche","Glace porte avant droite","Glace porte arrière gauche","Glace porte arrière droite","Lunette arrière","Joints de vitres"]
+  },
+  "💡 ÉCLAIRAGE":{
+    "Avant":["Phare avant gauche","Phare avant droit","Ampoule phare gauche","Ampoule phare droit","Feu de jour (DRL) gauche","Feu de jour (DRL) droit","Clignotant avant gauche","Clignotant avant droit","Antibrouillard avant gauche","Antibrouillard avant droit"],
+    "Arrière":["Feu arrière gauche","Feu arrière droit","Feu stop gauche","Feu stop droit","Clignotant arrière gauche","Clignotant arrière droit","Feu de recul","Feu brouillard arrière","Éclaireur de plaque"]
+  },
+  "⚡ ÉLECTRICITÉ":{
+    "Alimentation":["Batterie 12V","Alternateur","Démarreur","Faisceau moteur","Faisceau de caisse","Boîte à fusibles moteur","Boîte à fusibles habitacle"],
+    "Capteurs":["Capteur PMH vilebrequin","Capteur arbre à cames","Capteur de détonation","Capteur MAP","Débitmètre MAF","Capteur température eau","Sonde lambda amont","Sonde lambda aval"],
+    "Calculateurs":["Calculateur moteur (ECU)","Calculateur boîte (TCU)","Calculateur ABS/VSC","Calculateur airbags (SRS)","Calculateur direction","Calculateur BCM"]
+  },
+  "🌬️ CLIMATISATION":{
+    "Clim & chauffage":["Compresseur climatisation","Condenseur climatisation","Filtre déshydrateur","Évaporateur","Moto-ventilateur clim","Résistance de ventilateur","Tableau commande clim"]
+  },
+  "🪟 HABITACLE":{
+    "Tableau de bord":["Tableau de bord complet","Combiné d'instruments","Écran tactile","Console centrale","Boîte à gants"],
+    "Sièges":["Siège conducteur","Siège passager avant","Banquette arrière","Ceinture conducteur","Ceinture passager avant","Ceintures arrière","Airbag conducteur","Airbag passager","Airbags latéraux","Airbags rideaux"],
+    "Commandes":["Rétroviseur extérieur gauche","Rétroviseur extérieur droit","Lève-vitres avant gauche","Lève-vitres avant droit","Lève-vitres arrière gauche","Lève-vitres arrière droit"]
+  },
+  "🔐 VERROUILLAGE":{
+    "Serrures & antivol":["Serrure porte avant gauche","Serrure porte avant droite","Serrure porte arrière gauche","Serrure porte arrière droite","Centrale de verrouillage","Télécommande","Antidémarrage","Alarme anti-vol"]
+  },
+  "🧹 ESSUIE-GLACES":{
+    "Essuie & lave":["Balai avant gauche","Balai avant droit","Balai arrière","Moteur essuie-glace avant","Moteur essuie-glace arrière","Pompe lave-glace","Réservoir lave-glace","Gicleurs avant","Gicleur arrière"]
+  }
+};
+
+// ── Supabase ──────────────────────────────────────────────────────
+const makeDB=(url,key)=>{
+  const h={apikey:key,Authorization:`Bearer ${key}`,"Content-Type":"application/json",Prefer:"return=representation"};
+  const B=`${url}/rest/v1`;
+  const get=async(t,qs="select=*")=>{const r=await fetch(`${B}/${t}?${qs}`,{headers:h});if(!r.ok)throw new Error(await r.text());return r.json();};
+  const upsert=async(t,data)=>{const r=await fetch(`${B}/${t}`,{method:"POST",headers:{...h,Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(data)});if(!r.ok)throw new Error(await r.text());return r.json();};
+  const ins=async(t,data)=>{const r=await fetch(`${B}/${t}`,{method:"POST",headers:{...h,Prefer:"return=representation"},body:JSON.stringify(data)});if(!r.ok)throw new Error(await r.text());return r.json();};
+  const del=async(t,f)=>{const r=await fetch(`${B}/${t}?${f}`,{method:"DELETE",headers:h});if(!r.ok)throw new Error(await r.text());};
+  const ping=async()=>{const r=await fetch(`${B}/drivers?select=name&limit=1`,{headers:h});return r.ok;};
+  return{get,upsert,ins,del,ping};
+};
+
+const S={
+  page:{padding:"16px 14px",maxWidth:920,margin:"0 auto"},
+  pt:{fontSize:19,fontWeight:700,color:"#F5C518",marginBottom:16,letterSpacing:1},
+  sec:{background:"#0d0d0d",border:"1px solid #1a1a1a",borderRadius:10,padding:13,marginBottom:12},
+  sh:{fontSize:11,color:"#888",textTransform:"uppercase",letterSpacing:2,marginBottom:11,fontWeight:700},
+  kg:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(165px,1fr))",gap:10,marginBottom:20},
+  fg:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:12,marginBottom:16},
+  fg2:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:10,marginBottom:14},
+  lbl:{display:"block",fontSize:11,color:"#888",marginBottom:4,fontWeight:600,letterSpacing:.5},
+  inp:{width:"100%",background:"#111",border:"1px solid #2a2a2a",borderRadius:6,padding:"9px 11px",color:"#e0e0e0",fontSize:13,boxSizing:"border-box"},
+  sel:{width:"100%",background:"#111",border:"1px solid #2a2a2a",borderRadius:6,padding:"9px 11px",color:"#e0e0e0",fontSize:13,boxSizing:"border-box"},
+  wn:{display:"flex",alignItems:"center",gap:10,marginBottom:16},
+  wl:{flex:1,textAlign:"center",fontWeight:700,color:"#F5C518",fontFamily:"monospace",fontSize:15},
+};
+
+// ════════════════════════════════════════════════════════════════
+// MAIN APP
+// ════════════════════════════════════════════════════════════════
+function App(){
+  const [supaUrl,setSupaUrl]=useState("");
+  const [supaKey,setSupaKey]=useState("");
+  const [configured,setConfigured]=useState(false);
+  const [loading,setLoading]=useState(false);
+  const [days,setDays]=useState({});
+  const [objectives,setObjectives]=useState({});
+  const [drivers,setDrivers]=useState(["Propriétaire","Chauffeur 2"]);
+  const [repairs,setRepairs]=useState([]);
+  const [oilChanges,setOilChanges]=useState([]);
+  const [tab,setTab]=useState("dashboard");
+  const [selDate,setSelDate]=useState(todayStr());
+  const [selWeek,setSelWeek]=useState(getWeekId(todayStr()));
+  const [selMonth,setSelMonth]=useState(getMonthId(todayStr()));
+  const [notif,setNotif]=useState(null);
+
+  const notify=(msg,type="success")=>{setNotif({msg,type});setTimeout(()=>setNotif(null),3200);};
+
+  useEffect(()=>{
+    const url=localStorage.getItem("tf_url")||"",key=localStorage.getItem("tf_key")||"";
+    if(url&&key){setSupaUrl(url);setSupaKey(key);loadData(url,key);}
+  },[]);
+
+  const loadData=async(url,key)=>{
+    setLoading(true);const db=makeDB(url,key);
+    try{
+      const [dA,oA,drvA,repA,oilA]=await Promise.all([
+        db.get("days"),db.get("objectives"),
+        db.get("drivers","select=name&order=created_at.asc"),
+        db.get("repairs","select=*&order=date.desc,created_at.desc"),
+        db.get("oil_changes","select=*&order=date.desc,created_at.desc")
+      ]);
+      const dO={};dA.forEach(({date,...r})=>{dO[date]={...r,earnings:+r.earnings,expenses:+r.expenses,savings:+r.savings};});setDays(dO);
+      const oO={};oA.forEach(({week_id,income_goal,savings_goal,spending_budget,notes})=>{oO[week_id]={incomeGoal:+income_goal,savingsGoal:+savings_goal,spendingBudget:+spending_budget,notes};});setObjectives(oO);
+      if(drvA.length>0)setDrivers(drvA.map(d=>d.name));
+      setRepairs(repA);setOilChanges(oilA);
+      setConfigured(true);
+    }catch(e){notify("❌ Connexion échouée : "+e.message,"error");}
+    setLoading(false);
+  };
+
+  const connect=async(url,key)=>{
+    setLoading(true);
+    try{
+      const ok=await makeDB(url,key).ping();
+      if(ok){localStorage.setItem("tf_url",url);localStorage.setItem("tf_key",key);setSupaUrl(url);setSupaKey(key);await loadData(url,key);}
+      else notify("❌ URL ou clé incorrecte.","error");
+    }catch{notify("❌ Impossible de contacter Supabase.","error");}
+    setLoading(false);
+  };
+
+  const DB=()=>makeDB(supaUrl,supaKey);
+
+  const saveDay=async(date,entry)=>{
+    setDays(p=>({...p,[date]:entry}));
+    try{await DB().upsert("days",{date,worked:entry.worked,driver:entry.driver||null,earnings:entry.earnings||0,expenses:entry.expenses||0,savings:entry.savings||0,reason:entry.reason||null,notes:entry.notes||null});}
+    catch(e){notify("❌ "+e.message,"error");}
+  };
+  const saveObjective=async(wid,obj)=>{
+    setObjectives(p=>({...p,[wid]:obj}));
+    try{await DB().upsert("objectives",{week_id:wid,income_goal:obj.incomeGoal||0,savings_goal:obj.savingsGoal||0,spending_budget:obj.spendingBudget||0,notes:obj.notes||null});}
+    catch(e){notify("❌ "+e.message,"error");}
+  };
+  const saveRepair=async(rep)=>{
+    try{const rows=await DB().ins("repairs",rep);setRepairs(p=>[rows[0]||rep,...p]);notify("✅ Réparation enregistrée !");return true;}
+    catch(e){notify("❌ "+e.message,"error");return false;}
+  };
+  const saveOilChange=async(oc)=>{
+    try{const rows=await DB().ins("oil_changes",oc);setOilChanges(p=>[rows[0]||oc,...p]);notify("✅ Vidange enregistrée !");return true;}
+    catch(e){notify("❌ "+e.message,"error");return false;}
+  };
+  const delRepair=async(id)=>{
+    try{await DB().del("repairs",`id=eq.${id}`);setRepairs(p=>p.filter(r=>r.id!==id));notify("🗑️ Supprimé");}
+    catch(e){notify("❌ "+e.message,"error");}
+  };
+  const delOil=async(id)=>{
+    try{await DB().del("oil_changes",`id=eq.${id}`);setOilChanges(p=>p.filter(r=>r.id!==id));notify("🗑️ Supprimé");}
+    catch(e){notify("❌ "+e.message,"error");}
+  };
+  const addDriver=async(name)=>{
+    if(drivers.includes(name)){notify("Ce chauffeur existe déjà","error");return false;}
+    setDrivers(p=>[...p,name]);try{await DB().upsert("drivers",{name});}catch(e){notify("❌ "+e.message,"error");}return true;
+  };
+  const removeDriver=async(name)=>{
+    if(drivers.length<=1){notify("Il faut au moins un chauffeur","error");return;}
+    setDrivers(p=>p.filter(d=>d!==name));try{await DB().del("drivers",`name=eq.${encodeURIComponent(name)}`);}catch(e){notify("❌ "+e.message,"error");}
+  };
+  const disconnect=()=>{localStorage.removeItem("tf_url");localStorage.removeItem("tf_key");setConfigured(false);setSupaUrl("");setSupaKey("");setDays({});setObjectives({});setDrivers(["Propriétaire","Chauffeur 2"]);setRepairs([]);setOilChanges([]);};
+
+  if(!configured)return <SetupScreen onConnect={connect} loading={loading} notif={notif}/>;
+
+  return(
+    <div style={{background:"#0a0a0a",minHeight:"100vh",color:"#e0e0e0"}}>
+      {notif&&<div className={`notif ${notif.type==="success"?"ns":"ne"}`}>{notif.msg}</div>}
+      {loading&&<div className="lb"><div className="lf"/></div>}
+      <header style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",borderBottom:"1px solid #1a1a1a",background:"#0d0d0d"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontSize:26}}>🚕</span>
+          <div>
+            <div style={{fontSize:16,fontWeight:800,letterSpacing:3,color:"#F5C518",fontFamily:"monospace"}}>TAXI FINANCE</div>
+            <div style={{fontSize:9,color:"#555",letterSpacing:1}}>Dashboard • Véhicule • Supabase</div>
+          </div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:11,color:"#888",textTransform:"capitalize"}}>{new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}</div>
+          <div style={{fontSize:10,color:"#4CAF50",marginTop:3}}>🟢 Supabase connecté</div>
+        </div>
+      </header>
+      <nav style={{display:"flex",overflowX:"auto",borderBottom:"1px solid #1a1a1a",background:"#0d0d0d",padding:"0 5px"}}>
+        {[["dashboard","📊","Dashboard"],["daily","📅","Saisie"],["objectives","🎯","Objectifs"],["weekly","📈","Bilan"],["monthly","🗓","Mensuel"],["vehicle","🔧","Véhicule"],["settings","⚙️","Config"]].map(([id,ic,lb])=>(
+          <button key={id} onClick={()=>setTab(id)} className={`nb ${tab===id?"act":""}`}><span>{ic}</span><span style={{fontSize:9}}>{lb}</span></button>
+        ))}
+      </nav>
+      <main style={{paddingBottom:40}}>
+        {tab==="dashboard"  &&<Dashboard   days={days} objectives={objectives} oilChanges={oilChanges}/>}
+        {tab==="daily"      &&<DailyEntry  days={days} saveDay={saveDay} drivers={drivers} selDate={selDate} setSelDate={setSelDate} notify={notify}/>}
+        {tab==="objectives" &&<Objectives  objectives={objectives} saveObjective={saveObjective} selWeek={selWeek} setSelWeek={setSelWeek} notify={notify}/>}
+        {tab==="weekly"     &&<WeeklyRecap days={days} objectives={objectives} selWeek={selWeek} setSelWeek={setSelWeek}/>}
+        {tab==="monthly"    &&<MonthlyView days={days} objectives={objectives} selMonth={selMonth} setSelMonth={setSelMonth}/>}
+        {tab==="vehicle"    &&<VehicleModule repairs={repairs} oilChanges={oilChanges} saveRepair={saveRepair} saveOilChange={saveOilChange} delRepair={delRepair} delOil={delOil} notify={notify}/>}
+        {tab==="settings"   &&<Settings    drivers={drivers} addDriver={addDriver} removeDriver={removeDriver} notify={notify} onDisconnect={disconnect} supaUrl={supaUrl}/>}
+      </main>
+    </div>
+  );
+}
+
+// ── Setup ─────────────────────────────────────────────────────────
+function SetupScreen({onConnect,loading,notif}){
+  const [url,setUrl]=useState("");const [key,setKey]=useState("");
+  return(
+    <div style={{background:"#0a0a0a",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+      {notif&&<div className={`notif ${notif.type==="success"?"ns":"ne"}`}>{notif.msg}</div>}
+      <div style={{background:"#0d0d0d",border:"1px solid #222",borderRadius:14,padding:"26px 22px",maxWidth:440,width:"100%",textAlign:"center"}}>
+        <div style={{fontSize:44,marginBottom:6}}>🚕</div>
+        <div style={{fontSize:18,fontWeight:800,color:"#F5C518",letterSpacing:3,fontFamily:"monospace"}}>TAXI FINANCE</div>
+        <div style={{color:"#555",fontSize:12,marginBottom:22,marginTop:3}}>Connectez votre base Supabase</div>
+        <div style={{background:"#111",borderRadius:10,padding:"12px 16px",textAlign:"left",marginBottom:16}}>
+          {[["1","Créez un compte sur ","supabase.com"],["2","Nouveau projet",""],["3","SQL Editor → collez ","supabase-schema.sql"],["4","Settings → API → URL + clé anonyme",""]].map(([n,t,h])=>(
+            <div key={n} style={{display:"flex",gap:10,padding:"6px 0",borderBottom:"1px solid #1a1a1a",alignItems:"flex-start"}}>
+              <span style={{background:"#F5C518",color:"#000",borderRadius:"50%",width:19,height:19,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,flexShrink:0,marginTop:1}}>{n}</span>
+              <span style={{color:"#aaa",fontSize:12}}>{t}<strong style={{color:"#F5C518"}}>{h}</strong></span>
+            </div>
+          ))}
+        </div>
+        <label style={S.lbl}>URL du projet</label>
+        <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://xxxx.supabase.co" style={{...S.inp,marginBottom:10}} className="inp"/>
+        <label style={S.lbl}>Clé anonyme (anon public)</label>
+        <input value={key} onChange={e=>setKey(e.target.value)} placeholder="eyJhbGci..." style={{...S.inp,marginBottom:16}} className="inp" type="password"/>
+        <button onClick={()=>onConnect(url.trim(),key.trim())} className="sb" disabled={loading||!url||!key}>{loading?"⏳ Connexion…":"🔌 Se connecter"}</button>
+      </div>
+    </div>
+  );
+}
+
+// ── KpiCard ───────────────────────────────────────────────────────
+function KpiCard({icon,label,value,sub,progress=0,color,reverse}){
+  const over=reverse&&progress>100;
+  return(
+    <div className="kc">
+      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:1}}>{label}</span></div>
+      <div style={{fontSize:22,fontWeight:700,color:over?"#FF5722":color,fontFamily:"monospace",marginBottom:3}}>{value}</div>
+      <div style={{fontSize:10,color:"#666",marginBottom:7}}>{sub}</div>
+      {progress>0&&<div style={{background:"#1a1a1a",borderRadius:3,height:5,overflow:"hidden"}}><div style={{width:`${Math.min(progress,100)}%`,height:"100%",background:over?"#FF5722":color,borderRadius:3,transition:"width .6s ease"}}/></div>}
+      <div style={{fontSize:10,color:"#555",marginTop:3}}>{progress}%</div>
+    </div>
+  );
+}
+function PBar({label,value,target,color}){
+  const pct=target>0?Math.min(100,Math.round((value/target)*100)):0;
+  return(
+    <div style={{marginBottom:12}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"#ccc"}}>{label}</span><span style={{color,fontFamily:"monospace"}}>{fmtCur(value)} / {fmtCur(target)}</span></div>
+      <div style={{background:"#1a1a1a",borderRadius:4,height:6,overflow:"hidden"}}><div style={{width:`${pct}%`,height:"100%",background:color,borderRadius:4,transition:"width .8s ease"}}/></div>
+      <div style={{fontSize:10,color:"#555",marginTop:2,textAlign:"right"}}>{pct}%</div>
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────
+function Dashboard({days,objectives,oilChanges}){
+  const ws=startOfWeek(todayStr()),wd=daysOfWeek(ws),wid=getWeekId(todayStr()),mid=getMonthId(todayStr()),obj=objectives[wid]||{};
+  const wE=wd.reduce((s,d)=>s+(days[d]?.earnings||0),0);
+  const wX=wd.reduce((s,d)=>s+(days[d]?.expenses||0),0);
+  const wS=wd.reduce((s,d)=>s+(days[d]?.savings||0),0);
+  const worked=wd.filter(d=>days[d]?.worked).length;
+  const allM=Object.entries(days).filter(([k])=>k.startsWith(mid));
+  const mE=allM.reduce((s,[,v])=>s+(v.earnings||0),0);
+  const mSv=allM.reduce((s,[,v])=>s+(v.savings||0),0);
+  const mW=[...new Set(Object.keys(days).filter(d=>d.startsWith(mid)).map(getWeekId))];
+  const mOI=mW.reduce((s,w)=>s+(objectives[w]?.incomeGoal||0),0);
+  const mOS=mW.reduce((s,w)=>s+(objectives[w]?.savingsGoal||0),0);
+  const pct=(a,b)=>b>0?Math.min(100,Math.round((a/b)*100)):0;
+  const last7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));const k=d.toISOString().split("T")[0];return{label:DAYS[d.getDay()===0?6:d.getDay()-1],e:days[k]?.earnings||0,key:k};});
+  const maxE=Math.max(...last7.map(d=>d.e),1);
+  const lastOil=oilChanges[0];
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>Vue d'ensemble</h2>
+      <div style={S.kg}>
+        <KpiCard icon="💰" label="Recettes semaine"  value={fmtCur(wE)} sub={obj.incomeGoal?`Obj : ${fmtCur(obj.incomeGoal)}`:"Pas d'objectif"} progress={pct(wE,obj.incomeGoal)} color="#F5C518"/>
+        <KpiCard icon="🏦" label="Économies semaine" value={fmtCur(wS)} sub={obj.savingsGoal?`Obj : ${fmtCur(obj.savingsGoal)}`:"Pas d'objectif"} progress={pct(wS,obj.savingsGoal)} color="#4CAF50"/>
+        <KpiCard icon="📉" label="Dépenses semaine"  value={fmtCur(wX)} sub={obj.spendingBudget?`Budget : ${fmtCur(obj.spendingBudget)}`:"—"} progress={pct(wX,obj.spendingBudget)} color="#FF5722" reverse/>
+        <KpiCard icon="🚗" label="Jours travaillés"  value={`${worked}/6`} sub="Cette semaine" progress={Math.round((worked/6)*100)} color="#2196F3"/>
+      </div>
+      {lastOil&&(
+        <div style={{...S.sec,borderColor:"#1a3a1a",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+          <div>
+            <div style={{fontSize:11,color:"#888",marginBottom:3}}>🛢️ DERNIÈRE VIDANGE</div>
+            <div style={{fontSize:14,color:"#ccc"}}>{fmtDate(lastOil.date)} — <span style={{fontFamily:"monospace",color:"#4CAF50"}}>{fmt(lastOil.mileage)} km</span></div>
+            <div style={{fontSize:11,color:"#666",marginTop:2}}>{lastOil.oil_type||"—"}</div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:11,color:"#888"}}>Prochain changement</div>
+            <div style={{fontSize:16,fontWeight:700,color:"#F5C518",fontFamily:"monospace"}}>{fmt(lastOil.next_mileage)} km</div>
+          </div>
+        </div>
+      )}
+      <div style={S.sec}><h3 style={S.sh}>Progression du mois</h3><PBar label="Recettes" value={mE} target={mOI} color="#F5C518"/><PBar label="Économies" value={mSv} target={mOS} color="#4CAF50"/></div>
+      <div style={S.sec}>
+        <h3 style={S.sh}>Recettes — 7 derniers jours</h3>
+        <div style={{display:"flex",alignItems:"flex-end",height:120,gap:4}}>
+          {last7.map(d=>(
+            <div key={d.key} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",height:"100%",justifyContent:"flex-end"}}>
+              <div style={{fontSize:8,color:"#555",marginBottom:2,textAlign:"center",whiteSpace:"nowrap"}}>{d.e>0?fmtCur(d.e):"—"}</div>
+              <div style={{width:"100%",height:88,display:"flex",alignItems:"flex-end",background:"#111",borderRadius:3,overflow:"hidden"}}>
+                <div className="bf" style={{width:"100%",height:`${(d.e/maxE)*100}%`,background:d.key===todayStr()?"#F5C518":"#3a3a2a",transition:"height .5s ease"}}/>
+              </div>
+              <div style={{fontSize:9,color:"#555",marginTop:2}}>{d.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={S.sec}>
+        <h3 style={S.sh}>Semaine en cours</h3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:6}}>
+          {daysOfWeek(startOfWeek(todayStr())).slice(0,6).map((d,i)=>{const e=days[d],isT=d===todayStr();return(
+            <div key={d} className={`dc ${isT?"dt":""} ${e?.worked?"dw":""}`}>
+              <div style={{fontSize:9,color:"#555",fontWeight:700}}>{DAYS[i]}</div>
+              <div style={{fontSize:17,fontWeight:700,color:"#ccc",margin:"1px 0"}}>{new Date(d).getDate()}</div>
+              {e?.worked&&<><div style={{fontSize:11,color:"#F5C518",fontFamily:"monospace",fontWeight:700}}>{fmtCur(e.earnings)}</div><div style={{fontSize:9,color:"#666"}}>{e.driver}</div></>}
+              {e&&!e.worked&&<div style={{fontSize:10,color:"#444"}}>Repos</div>}
+              {!e&&<div style={{fontSize:16,color:"#222"}}>—</div>}
+            </div>
+          );})}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Daily Entry ───────────────────────────────────────────────────
+function DailyEntry({days,saveDay,drivers,selDate,setSelDate,notify}){
+  const ex=days[selDate]||{};
+  const [worked,setWorked]=useState(ex.worked??true);
+  const [driver,setDriver]=useState(ex.driver||drivers[0]||"");
+  const [earnings,setEarnings]=useState(ex.earnings||"");
+  const [expenses,setExpenses]=useState(ex.expenses||"");
+  const [savings,setSavings]=useState(ex.savings||"");
+  const [reason,setReason]=useState(ex.reason||"");
+  const [notes,setNotes]=useState(ex.notes||"");
+  useEffect(()=>{const e=days[selDate]||{};setWorked(e.worked??true);setDriver(e.driver||drivers[0]||"");setEarnings(e.earnings||"");setExpenses(e.expenses||"");setSavings(e.savings||"");setReason(e.reason||"");setNotes(e.notes||"");},[selDate]);
+  const save=async()=>{await saveDay(selDate,{worked,driver,earnings:Number(earnings)||0,expenses:Number(expenses)||0,savings:Number(savings)||0,reason,notes});notify("✅ Journée enregistrée !");};
+  const net=(Number(earnings)||0)-(Number(expenses)||0)-(Number(savings)||0);
+  const wd=daysOfWeek(startOfWeek(selDate));
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>Saisie journalière</h2>
+      <div style={{display:"flex",gap:4,marginBottom:12,alignItems:"center",overflowX:"auto"}}>
+        <button className="ab" onClick={()=>{const d=new Date(selDate);d.setDate(d.getDate()-7);setSelDate(d.toISOString().split("T")[0]);}}>‹</button>
+        {wd.slice(0,6).map((d,i)=>{const e=days[d];return(
+          <button key={d} onClick={()=>setSelDate(d)} className={`sd ${d===selDate?"sa":""} ${e?.worked?"sw":""}`}>
+            <div style={{fontSize:9,opacity:.7}}>{DAYS[i]}</div>
+            <div style={{fontSize:13,fontWeight:700}}>{new Date(d).getDate()}</div>
+            {e?.worked&&<div style={{fontSize:8,color:"#F5C518"}}>{fmt(e.earnings)}€</div>}
+            {e&&!e.worked&&<div style={{fontSize:8,color:"#555"}}>Repos</div>}
+          </button>
+        );})}
+        <button className="ab" onClick={()=>{const d=new Date(selDate);d.setDate(d.getDate()+7);setSelDate(d.toISOString().split("T")[0]);}}>›</button>
+      </div>
+      <div style={{color:"#888",fontSize:11,marginBottom:12,padding:"6px 10px",background:"#0d0d0d",borderRadius:6,border:"1px solid #1a1a1a"}}>
+        📅 {new Date(selDate).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+      </div>
+      <div style={S.sec}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:7}}>
+          <span style={{color:"#ccc",fontSize:12}}>Le véhicule a-t-il roulé ce jour ?</span>
+          <div style={{display:"flex",gap:6}}>
+            <button className={`tb ${worked?"tg":""}`} onClick={()=>setWorked(true)}>✅ Oui</button>
+            <button className={`tb ${!worked?"tr2":""}`} onClick={()=>setWorked(false)}>❌ Non</button>
+          </div>
+        </div>
+      </div>
+      {worked?(
+        <div style={S.fg}>
+          <div><label style={S.lbl}>Chauffeur</label><select value={driver} onChange={e=>setDriver(e.target.value)} style={S.sel}>{drivers.map(d=><option key={d}>{d}</option>)}</select></div>
+          <div><label style={S.lbl}>Recettes (€)</label><input type="number" value={earnings} onChange={e=>setEarnings(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Dépenses (carburant, frais…) (€)</label><input type="number" value={expenses} onChange={e=>setExpenses(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Mise en caisse (€)</label><input type="number" value={savings} onChange={e=>setSavings(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div style={{gridColumn:"1 / -1"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#111",border:"1px solid #2a2a2a",borderRadius:8,padding:"10px 13px"}}>
+              <span style={{color:"#888",fontSize:12}}>Net (recettes − dépenses − économies)</span>
+              <span style={{color:net>=0?"#4CAF50":"#FF5722",fontFamily:"monospace",fontSize:19,fontWeight:700}}>{fmtCur(net)}</span>
+            </div>
+          </div>
+          <div style={{gridColumn:"1 / -1"}}><label style={S.lbl}>Notes</label><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Remarques du jour…" style={{...S.inp,height:65,resize:"vertical"}} className="inp"/></div>
+        </div>
+      ):(
+        <div style={S.fg}>
+          <div style={{gridColumn:"1 / -1"}}><label style={S.lbl}>Raison</label><select value={reason} onChange={e=>setReason(e.target.value)} style={S.sel}><option value="">Sélectionner…</option>{REASONS.map(r=><option key={r}>{r}</option>)}</select></div>
+          <div style={{gridColumn:"1 / -1"}}><label style={S.lbl}>Notes</label><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Détails…" style={{...S.inp,height:65,resize:"vertical"}} className="inp"/></div>
+        </div>
+      )}
+      <button onClick={save} className="sb">💾 Enregistrer cette journée</button>
+    </div>
+  );
+}
+
+// ── Objectives ────────────────────────────────────────────────────
+function Objectives({objectives,saveObjective,selWeek,setSelWeek,notify}){
+  const obj=objectives[selWeek]||{};
+  const [income,setIncome]=useState(obj.incomeGoal||"");
+  const [sGoal,setSGoal]=useState(obj.savingsGoal||"");
+  const [spend,setSpend]=useState(obj.spendingBudget||"");
+  const [notes,setNotes]=useState(obj.notes||"");
+  useEffect(()=>{const o=objectives[selWeek]||{};setIncome(o.incomeGoal||"");setSGoal(o.savingsGoal||"");setSpend(o.spendingBudget||"");setNotes(o.notes||"");},[selWeek]);
+  const [y,w]=selWeek.split("-W").map(Number);
+  const prev=()=>setSelWeek(w===1?`${y-1}-W52`:`${y}-W${String(w-1).padStart(2,"0")}`);
+  const next=()=>setSelWeek(w===52?`${y+1}-W01`:`${y}-W${String(w+1).padStart(2,"0")}`);
+  const save=async()=>{await saveObjective(selWeek,{incomeGoal:Number(income),savingsGoal:Number(sGoal),spendingBudget:Number(spend),notes});notify("🎯 Objectifs enregistrés !");};
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>Objectifs hebdomadaires</h2>
+      <div style={S.wn}><button className="ab" onClick={prev}>‹</button><div style={S.wl}>Semaine {w} — {y}</div><button className="ab" onClick={next}>›</button></div>
+      <div style={S.fg}>
+        <div><label style={S.lbl}>🎯 Objectif recettes (€)</label><input type="number" value={income} onChange={e=>setIncome(e.target.value)} placeholder="Ex: 1200" style={S.inp} className="inp"/></div>
+        <div><label style={S.lbl}>🏦 Objectif économies (€)</label><input type="number" value={sGoal} onChange={e=>setSGoal(e.target.value)} placeholder="Ex: 300" style={S.inp} className="inp"/></div>
+        <div><label style={S.lbl}>📉 Budget dépenses max (€)</label><input type="number" value={spend} onChange={e=>setSpend(e.target.value)} placeholder="Ex: 150" style={S.inp} className="inp"/></div>
+        <div style={{gridColumn:"1 / -1"}}><label style={S.lbl}>📝 Remarques</label><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Contexte de la semaine…" style={{...S.inp,height:65,resize:"vertical"}} className="inp"/></div>
+      </div>
+      <button onClick={save} className="sb">💾 Enregistrer les objectifs</button>
+    </div>
+  );
+}
+
+// ── Weekly Recap ──────────────────────────────────────────────────
+function WeeklyRecap({days,objectives,selWeek,setSelWeek}){
+  const [y,w]=selWeek.split("-W").map(Number);
+  const j1=new Date(y,0,1),ws=new Date(j1);ws.setDate(j1.getDate()+(w-1)*7-j1.getDay()+1);
+  const wd=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d.toISOString().split("T")[0];});
+  const obj=objectives[selWeek]||{};
+  const E=wd.reduce((s,d)=>s+(days[d]?.earnings||0),0);
+  const X=wd.reduce((s,d)=>s+(days[d]?.expenses||0),0);
+  const SV=wd.reduce((s,d)=>s+(days[d]?.savings||0),0);
+  const net=E-X-SV,wD=wd.slice(0,6).filter(d=>days[d]?.worked).length;
+  const prev=()=>setSelWeek(w===1?`${y-1}-W52`:`${y}-W${String(w-1).padStart(2,"0")}`);
+  const next=()=>setSelWeek(w===52?`${y+1}-W01`:`${y}-W${String(w+1).padStart(2,"0")}`);
+  const diff=(a,g)=>g>0?{v:a-g,p:Math.round((a/g)*100),ok:a>=g}:null;
+  const iD=diff(E,obj.incomeGoal),sD=diff(SV,obj.savingsGoal),xD=diff(X,obj.spendingBudget);
+  const bilan=[];
+  if(wD<6)bilan.push(`⚠️ ${6-wD} jour(s) d'inactivité.`);
+  if(iD)bilan.push(iD.ok?`✅ Recettes : +${fmtCur(Math.abs(iD.v))} vs objectif.`:`❌ Recettes : ${fmtCur(Math.abs(iD.v))} manquants (${iD.p}%).`);
+  if(sD)bilan.push(sD.ok?`✅ Économies : objectif atteint.`:`❌ Économies : ${fmtCur(Math.abs(sD.v))} manquants.`);
+  if(xD)bilan.push(!xD.ok?`✅ Dépenses dans le budget.`:`⚠️ Budget dépassé de ${fmtCur(Math.abs(xD.v))}.`);
+  if(!bilan.length)bilan.push("📋 Aucun objectif défini.");
+  const RC=({label,actual,goal,icon,color,higher,noGoal})=>{
+    const p=goal>0?Math.min(200,Math.round((actual/goal)*100)):0,ok=higher?actual>=(goal||0):actual<=(goal||Infinity);
+    return(
+      <div className="kc">
+        <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:6}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:1}}>{label}</span></div>
+        <div style={{fontSize:22,fontWeight:700,color,fontFamily:"monospace"}}>{fmtCur(actual)}</div>
+        {!noGoal&&goal>0&&(<><div style={{fontSize:10,color:"#555",margin:"3px 0 6px"}}>Obj : {fmtCur(goal)}</div><div style={{background:"#1a1a1a",borderRadius:3,height:5,overflow:"hidden"}}><div style={{width:`${Math.min(p,100)}%`,height:"100%",background:ok?"#4CAF50":"#FF5722",borderRadius:3}}/></div><div style={{fontSize:10,color:ok?"#4CAF50":"#FF5722",marginTop:3}}>{ok?`✅ ${p}%`:`❌ ${p}%`}</div></>)}
+      </div>
+    );
+  };
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>Bilan de la semaine</h2>
+      <div style={S.wn}><button className="ab" onClick={prev}>‹</button><div style={S.wl}>Semaine {w} — {y}</div><button className="ab" onClick={next}>›</button></div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:10,marginBottom:18}}>
+        <RC label="Recettes" actual={E} goal={obj.incomeGoal} icon="💰" color="#F5C518" higher/>
+        <RC label="Économies" actual={SV} goal={obj.savingsGoal} icon="🏦" color="#4CAF50" higher/>
+        <RC label="Dépenses" actual={X} goal={obj.spendingBudget} icon="📉" color="#FF5722"/>
+        <RC label="Net (rec−dép−éco)" actual={net} icon="📊" color={net>=0?"#4CAF50":"#FF5722"} higher noGoal/>
+      </div>
+      <div style={S.sec}>
+        <h3 style={S.sh}>Détail journalier</h3>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+            <thead><tr>{["Jour","Statut","Chauffeur","Recettes","Dépenses","Économies","Notes"].map(h=><th key={h} style={{textAlign:"left",padding:"7px 8px",fontSize:10,color:"#555",textTransform:"uppercase",borderBottom:"1px solid #1a1a1a"}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {wd.slice(0,6).map((d,i)=>{const e=days[d];return(
+                <tr key={d} style={{borderBottom:"1px solid #111"}}>
+                  <td style={{padding:"7px 8px",color:"#ccc"}}>{DAYS[i]} {new Date(d).getDate()}</td>
+                  <td style={{padding:"7px 8px"}}>{e?(e.worked?<span style={{color:"#4CAF50"}}>✅ Actif</span>:<span style={{color:"#555"}}>💤 Repos</span>):<span style={{color:"#333"}}>—</span>}</td>
+                  <td style={{padding:"7px 8px",color:"#aaa"}}>{e?.driver||"—"}</td>
+                  <td style={{padding:"7px 8px",color:"#F5C518",fontFamily:"monospace"}}>{e?.worked?fmtCur(e.earnings):"—"}</td>
+                  <td style={{padding:"7px 8px",color:"#FF5722",fontFamily:"monospace"}}>{e?.worked?fmtCur(e.expenses):"—"}</td>
+                  <td style={{padding:"7px 8px",color:"#4CAF50",fontFamily:"monospace"}}>{e?.worked?fmtCur(e.savings):"—"}</td>
+                  <td style={{padding:"7px 8px",fontSize:10,color:"#666",maxWidth:120}}>{e?.notes||e?.reason||"—"}</td>
+                </tr>
+              );})}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style={{background:"#0a1a0a",border:"1px solid #1a3a1a",borderRadius:10,padding:14}}>
+        <h3 style={{color:"#F5C518",margin:"0 0 10px",fontSize:13}}>🧾 Analyse</h3>
+        {bilan.map((l,i)=><div key={i} style={{fontSize:12,color:"#ccc",padding:"5px 0",borderBottom:"1px solid #1a1a1a"}}>{l}</div>)}
+        <div style={{marginTop:10,padding:"8px 11px",background:"#111",borderRadius:7,fontFamily:"monospace",fontSize:12}}>
+          <span style={{color:"#888"}}>Jours actifs : </span><span style={{color:"#F5C518"}}>{wD}/6</span>
+          <span style={{color:"#888",marginLeft:14}}>Moy/jour : </span><span style={{color:"#F5C518"}}>{fmtCur(wD>0?E/wD:0)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Monthly View ──────────────────────────────────────────────────
+function MonthlyView({days,objectives,selMonth,setSelMonth}){
+  const [y,m]=selMonth.split("-").map(Number);
+  const dim=new Date(y,m,0).getDate();
+  const mD=Array.from({length:dim},(_,i)=>new Date(y,m-1,i+1).toISOString().split("T")[0]);
+  const worked=mD.filter(d=>days[d]?.worked);
+  const tE=worked.reduce((s,d)=>s+(days[d]?.earnings||0),0);
+  const tX=worked.reduce((s,d)=>s+(days[d]?.expenses||0),0);
+  const tS=worked.reduce((s,d)=>s+(days[d]?.savings||0),0);
+  const mW=[...new Set(mD.map(getWeekId))];
+  const mOI=mW.reduce((s,w)=>s+(objectives[w]?.incomeGoal||0),0);
+  const mOS=mW.reduce((s,w)=>s+(objectives[w]?.savingsGoal||0),0);
+  const prev=()=>m===1?setSelMonth(`${y-1}-12`):setSelMonth(`${y}-${String(m-1).padStart(2,"0")}`);
+  const next=()=>m===12?setSelMonth(`${y+1}-01`):setSelMonth(`${y}-${String(m+1).padStart(2,"0")}`);
+  let cumul=0;const cD=mD.map(d=>{cumul+=days[d]?.savings||0;return cumul;});
+  const maxC=Math.max(...cD,1);
+  const drvM={};worked.forEach(d=>{const n=days[d]?.driver||"Inconnu";if(!drvM[n])drvM[n]={e:0,d:0};drvM[n].e+=days[d]?.earnings||0;drvM[n].d+=1;});
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>Vue mensuelle</h2>
+      <div style={S.wn}><button className="ab" onClick={prev}>‹</button><div style={S.wl}>{MONTHS[m-1]} {y}</div><button className="ab" onClick={next}>›</button></div>
+      <div style={S.kg}>
+        <KpiCard icon="💰" label="Recettes du mois" value={fmtCur(tE)} sub={mOI?`Obj : ${fmtCur(mOI)}`:"—"} progress={mOI>0?Math.round((tE/mOI)*100):0} color="#F5C518"/>
+        <KpiCard icon="🏦" label="Économies"         value={fmtCur(tS)} sub={mOS?`Obj : ${fmtCur(mOS)}`:"—"} progress={mOS>0?Math.round((tS/mOS)*100):0} color="#4CAF50"/>
+        <KpiCard icon="📉" label="Dépenses"           value={fmtCur(tX)} sub="Total frais" color="#FF5722"/>
+        <KpiCard icon="🚗" label="Jours actifs"        value={`${worked.length}/${dim}`} sub="Enregistrés" progress={Math.round((worked.length/dim)*100)} color="#2196F3"/>
+      </div>
+      <div style={S.sec}>
+        <h3 style={S.sh}>Économies cumulées</h3>
+        <svg viewBox={`0 0 ${dim*14} 110`} style={{width:"100%",height:110}}>
+          <polyline points={cD.map((v,i)=>`${i*14+7},${100-(v/maxC)*90}`).join(" ")} fill="none" stroke="#4CAF50" strokeWidth="2"/>
+          {cD.map((v,i)=><circle key={i} cx={i*14+7} cy={100-(v/maxC)*90} r="2" fill={v>0?"#4CAF50":"#333"}/>)}
+        </svg>
+        <div style={{textAlign:"right",fontSize:12,color:"#4CAF50",fontFamily:"monospace"}}>Total : {fmtCur(tS)}</div>
+      </div>
+      {Object.keys(drvM).length>0&&(
+        <div style={S.sec}>
+          <h3 style={S.sh}>Par chauffeur</h3>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))",gap:10}}>
+            {Object.entries(drvM).map(([n,d])=>(
+              <div key={n} style={{background:"#111",border:"1px solid #222",borderRadius:8,padding:12,textAlign:"center"}}>
+                <div style={{fontSize:18}}>🧑‍✈️</div>
+                <div style={{fontWeight:700,color:"#F5C518",marginTop:3,fontSize:13}}>{n}</div>
+                <div style={{fontSize:11,color:"#666"}}>{d.d} jour(s)</div>
+                <div style={{fontSize:16,fontFamily:"monospace",color:"#ccc",marginTop:5}}>{fmtCur(d.e)}</div>
+                <div style={{fontSize:10,color:"#555"}}>moy. {fmtCur(Math.round(d.e/d.d))}/j</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div style={S.sec}>
+        <h3 style={S.sh}>Calendrier</h3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
+          {DAYS.map(l=><div key={l} style={{textAlign:"center",fontSize:9,color:"#555",padding:"3px 0",fontWeight:700}}>{l}</div>)}
+          {Array.from({length:new Date(y,m-1,1).getDay()===0?6:new Date(y,m-1,1).getDay()-1}).map((_,i)=><div key={`p${i}`}/>)}
+          {mD.map(d=>{const e=days[d];return(
+            <div key={d} className={`cd ${e?.worked?"cw":""} ${new Date(d).getDay()===0?"cr":""}`}>
+              <div style={{fontSize:9,color:"#555"}}>{new Date(d).getDate()}</div>
+              {e?.worked&&<div style={{fontSize:9,color:"#F5C518",fontFamily:"monospace"}}>{fmt(e.earnings)}€</div>}
+              {e&&!e.worked&&<div style={{fontSize:8,color:"#444"}}>💤</div>}
+            </div>
+          );})}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODULE VÉHICULE
+// ════════════════════════════════════════════════════════════════
+function VehicleModule({repairs,oilChanges,saveRepair,saveOilChange,delRepair,delOil,notify}){
+  const [sub,setSub]=useState("repair");
+  const totalRepairs=repairs.reduce((s,r)=>s+(+r.total_cost||0),0);
+  const totalOil=oilChanges.reduce((s,o)=>s+(+o.price||0),0);
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>🔧 Gestion du véhicule</h2>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:8,marginBottom:16}}>
+        {[["💸","Total réparations",fmtCur(totalRepairs),"#FF5722"],[" 🛢️","Total vidanges",fmtCur(totalOil),"#2196F3"],["📋","Nb réparations",repairs.length,"#F5C518"],["🔄","Nb vidanges",oilChanges.length,"#4CAF50"]].map(([ic,lb,vl,cl])=>(
+          <div key={lb} className="kc" style={{textAlign:"center"}}>
+            <div style={{fontSize:20,marginBottom:4}}>{ic}</div>
+            <div style={{fontSize:10,color:"#888",marginBottom:4}}>{lb}</div>
+            <div style={{fontSize:18,fontWeight:700,color:cl,fontFamily:"monospace"}}>{vl}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex",overflowX:"auto",borderBottom:"1px solid #1a1a1a",marginBottom:16}}>
+        {[["repair","🔧 Nouvelle réparation"],["oil","🛢️ Nouvelle vidange"],["history","📋 Historique réparations"],["oilhist","🔄 Historique vidanges"],["prices","💰 Prix des pièces"]].map(([id,lb])=>(
+          <button key={id} onClick={()=>setSub(id)} className={`stb ${sub===id?"sact":""}`}>{lb}</button>
+        ))}
+      </div>
+      {sub==="repair"  &&<NewRepairForm    saveRepair={saveRepair} notify={notify}/>}
+      {sub==="oil"     &&<NewOilChangeForm saveOilChange={saveOilChange} oilChanges={oilChanges} notify={notify}/>}
+      {sub==="history" &&<RepairHistory    repairs={repairs} delRepair={delRepair}/>}
+      {sub==="oilhist" &&<OilHistory       oilChanges={oilChanges} delOil={delOil}/>}
+      {sub==="prices"  &&<PriceStats       repairs={repairs}/>}
+    </div>
+  );
+}
+
+// ── Formulaire Réparation ─────────────────────────────────────────
+function NewRepairForm({saveRepair,notify}){
+  const [date,setDate]=useState(todayStr());
+  const [selSys,setSelSys]=useState("");
+  const [selSub,setSelSub]=useState("");
+  const [selPart,setSelPart]=useState("");
+  const [customPart,setCustomPart]=useState("");
+  const [intType,setIntType]=useState("");
+  const [desc,setDesc]=useState("");
+  const [pricePart,setPricePart]=useState("");
+  const [priceLabor,setPriceLabor]=useState("");
+  const [mechName,setMechName]=useState("");
+  const [mechPhone,setMechPhone]=useState("");
+  const [shopName,setShopName]=useState("");
+  const [shopPhone,setShopPhone]=useState("");
+  const [photo,setPhoto]=useState(null);
+  const [notes,setNotes]=useState("");
+  const [openSys,setOpenSys]=useState({});
+  const [openSub,setOpenSub]=useState({});
+  const photoRef=useRef(null);
+
+  const total=(Number(pricePart)||0)+(Number(priceLabor)||0);
+  const partName=customPart||selPart;
+
+  const handlePhoto=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement("canvas");
+        const MAX=800;let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*(MAX/w));w=MAX;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext("2d").drawImage(img,0,0,w,h);
+        setPhoto(canvas.toDataURL("image/jpeg",0.7));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit=async()=>{
+    if(!partName){notify("⚠️ Veuillez sélectionner ou saisir une pièce","error");return;}
+    if(!intType){notify("⚠️ Veuillez sélectionner le type d'intervention","error");return;}
+    const ok=await saveRepair({
+      date,system_name:selSys,subsystem_name:selSub,part_name:partName,
+      intervention_type:intType,description:desc,
+      price_part:Number(pricePart)||0,price_labor:Number(priceLabor)||0,total_cost:total,
+      mechanic_name:mechName,mechanic_phone:mechPhone,
+      shop_name:shopName,shop_phone:shopPhone,
+      invoice_photo:photo,notes
+    });
+    if(ok){setSelSys("");setSelSub("");setSelPart("");setCustomPart("");setIntType("");setDesc("");setPricePart("");setPriceLabor("");setMechName("");setMechPhone("");setShopName("");setShopPhone("");setPhoto(null);setNotes("");}
+  };
+
+  return(
+    <div>
+      <div style={S.sec}>
+        <h3 style={S.sh}>📅 Date & Type d'intervention</h3>
+        <div style={S.fg}>
+          <div><label style={S.lbl}>Date de la réparation</label><input type="date" value={date} onChange={e=>setDate(e.target.value)} style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Type d'intervention *</label>
+            <select value={intType} onChange={e=>setIntType(e.target.value)} style={S.sel}>
+              <option value="">Sélectionner le type…</option>
+              {INTERVENTION_TYPES.map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
+        <div><label style={S.lbl}>Description de la panne / intervention</label><textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Décrivez le problème et l'intervention effectuée…" style={{...S.inp,height:75,resize:"vertical"}} className="inp"/></div>
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>🔩 Sélection de la pièce</h3>
+        <div style={{marginBottom:10}}>
+          {Object.keys(CAT).map(sys=>(
+            <div key={sys} className={`sysc ${selSys===sys?"sych":""}`}>
+              <div className="sysh" onClick={()=>{setOpenSys(p=>({...p,[sys]:!p[sys]}));if(selSys!==sys){setSelSys(sys);setSelSub("");setSelPart("");}}}>
+                <span style={{fontSize:13,fontWeight:600,color:selSys===sys?"#F5C518":"#ccc"}}>{sys}</span>
+                <span style={{fontSize:11,color:"#555"}}>{openSys[sys]?"▲":"▼"}</span>
+              </div>
+              {openSys[sys]&&(
+                <div style={{padding:"0 10px 10px"}}>
+                  {Object.entries(CAT[sys]).map(([sub,parts])=>(
+                    <div key={sub}>
+                      <div className={`subh ${selSub===sub?"subsel":""}`} onClick={()=>{setOpenSub(p=>({...p,[sub]:!p[sub]}));setSelSub(sub);setSelPart("");}}>
+                        <span>{sub}</span><span style={{fontSize:10}}>{openSub[sub]?"▲":"▼"}</span>
+                      </div>
+                      {openSub[sub]&&parts.map(part=>(
+                        <div key={part} className={`partitem ${selPart===part?"psel":""}`} onClick={()=>{setSelPart(part);setCustomPart("");}}>{part}</div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div>
+          <label style={S.lbl}>Ou saisir une pièce manuellement</label>
+          <input value={customPart} onChange={e=>{setCustomPart(e.target.value);if(e.target.value)setSelPart("");}} placeholder="Nom de la pièce si non listée…" style={S.inp} className="inp"/>
+        </div>
+        {partName&&(
+          <div style={{marginTop:8,padding:"8px 12px",background:"#0f1a00",border:"1px solid #F5C51833",borderRadius:6,fontSize:12}}>
+            ✅ Pièce sélectionnée : <strong style={{color:"#F5C518"}}>{partName}</strong>
+            {selSys&&<span style={{color:"#666"}}> — {selSys}{selSub?` > ${selSub}`:""}</span>}
+          </div>
+        )}
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>💰 Coûts</h3>
+        <div style={S.fg2}>
+          <div><label style={S.lbl}>Prix de la pièce (€)</label><input type="number" value={pricePart} onChange={e=>setPricePart(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Main d'œuvre (€)</label><input type="number" value={priceLabor} onChange={e=>setPriceLabor(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div style={{display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+            <div style={{background:"#111",border:"1px solid #2a2a2a",borderRadius:6,padding:"9px 11px",textAlign:"center"}}>
+              <div style={{fontSize:10,color:"#888",marginBottom:2}}>TOTAL</div>
+              <div style={{fontSize:20,fontWeight:700,color:"#F5C518",fontFamily:"monospace"}}>{fmtCur(total)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>🧑‍🔧 Mécanicien & Boutique</h3>
+        <div style={S.fg2}>
+          <div><label style={S.lbl}>Nom du mécanicien</label><input value={mechName} onChange={e=>setMechName(e.target.value)} placeholder="Nom…" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Téléphone mécanicien</label><input value={mechPhone} onChange={e=>setMechPhone(e.target.value)} placeholder="+XXX…" type="tel" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Nom de la boutique</label><input value={shopName} onChange={e=>setShopName(e.target.value)} placeholder="Boutique…" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Téléphone boutique</label><input value={shopPhone} onChange={e=>setShopPhone(e.target.value)} placeholder="+XXX…" type="tel" style={S.inp} className="inp"/></div>
+        </div>
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>📸 Photo de la facture</h3>
+        <input ref={photoRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/>
+        <div className="photobox" onClick={()=>photoRef.current.click()}>
+          {photo?<img src={photo} className="photopreview" alt="Facture"/>:<><div style={{fontSize:32,marginBottom:6}}>📷</div><div style={{fontSize:13,color:"#666"}}>Appuyer pour photographier la facture</div><div style={{fontSize:11,color:"#444",marginTop:3}}>Fonctionne avec la caméra du téléphone</div></>}
+        </div>
+        {photo&&<button onClick={()=>setPhoto(null)} style={{marginTop:6,background:"none",border:"1px solid #333",borderRadius:5,color:"#666",padding:"5px 12px",cursor:"pointer",fontSize:11}}>🗑️ Supprimer la photo</button>}
+      </div>
+
+      <div style={S.sec}>
+        <label style={S.lbl}>Notes supplémentaires</label>
+        <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Observations, garanties, remarques…" style={{...S.inp,height:70,resize:"vertical"}} className="inp"/>
+      </div>
+
+      <button onClick={handleSubmit} className="sb">💾 Enregistrer la réparation</button>
+    </div>
+  );
+}
+
+// ── Formulaire Vidange ────────────────────────────────────────────
+function NewOilChangeForm({saveOilChange,oilChanges,notify}){
+  const lastOil=oilChanges[0];
+  const [date,setDate]=useState(todayStr());
+  const [mileage,setMileage]=useState("");
+  const [oilType,setOilType]=useState(OIL_TYPES[0]);
+  const [oilQty,setOilQty]=useState("4");
+  const [filterChanged,setFilterChanged]=useState(true);
+  const [price,setPrice]=useState("");
+  const [interval,setInterval]=useState(5000);
+  const [mechName,setMechName]=useState("");
+  const [mechPhone,setMechPhone]=useState("");
+  const [shopName,setShopName]=useState("");
+  const [shopPhone,setShopPhone]=useState("");
+  const [photo,setPhoto]=useState(null);
+  const [notes,setNotes]=useState("");
+  const photoRef=useRef(null);
+  const nextMileage=mileage?(Number(mileage)+interval):null;
+
+  const handlePhoto=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{const canvas=document.createElement("canvas");const MAX=800;let w=img.width,h=img.height;if(w>MAX){h=Math.round(h*(MAX/w));w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(img,0,0,w,h);setPhoto(canvas.toDataURL("image/jpeg",0.7));};
+      img.src=ev.target.result;
+    };reader.readAsDataURL(file);
+  };
+
+  const handleSubmit=async()=>{
+    if(!mileage){notify("⚠️ Veuillez renseigner le kilométrage","error");return;}
+    const ok=await saveOilChange({
+      date,mileage:Number(mileage),oil_type:oilType,oil_quantity:Number(oilQty)||4,
+      filter_changed:filterChanged,price:Number(price)||0,
+      next_mileage:nextMileage,
+      mechanic_name:mechName,mechanic_phone:mechPhone,
+      shop_name:shopName,shop_phone:shopPhone,
+      invoice_photo:photo,notes
+    });
+    if(ok){setMileage("");setPrice("");setPhoto(null);setNotes("");}
+  };
+
+  return(
+    <div>
+      {lastOil&&(
+        <div style={{...S.sec,borderColor:"#1a3a1a",marginBottom:12}}>
+          <h3 style={{...S.sh,color:"#4CAF50"}}>📊 Dernière vidange enregistrée</h3>
+          <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+            <div>
+              <div style={{fontSize:12,color:"#ccc"}}>{fmtDate(lastOil.date)}</div>
+              <div style={{fontFamily:"monospace",color:"#F5C518",fontSize:15,fontWeight:700}}>{fmt(lastOil.mileage)} km</div>
+              <div style={{fontSize:11,color:"#666"}}>{lastOil.oil_type}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:11,color:"#888"}}>Prochain changement prévu</div>
+              <div style={{fontFamily:"monospace",color:"#4CAF50",fontSize:17,fontWeight:700}}>{fmt(lastOil.next_mileage)} km</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>📅 Informations de base</h3>
+        <div style={S.fg2}>
+          <div><label style={S.lbl}>Date de la vidange</label><input type="date" value={date} onChange={e=>setDate(e.target.value)} style={S.inp} className="inp"/></div>
+          <div>
+            <label style={S.lbl}>Kilométrage actuel *</label>
+            <input type="number" value={mileage} onChange={e=>setMileage(e.target.value)} placeholder="Ex: 45000" style={S.inp} className="inp"/>
+          </div>
+          <div><label style={S.lbl}>Type d'huile</label><select value={oilType} onChange={e=>setOilType(e.target.value)} style={S.sel}>{OIL_TYPES.map(t=><option key={t}>{t}</option>)}</select></div>
+          <div><label style={S.lbl}>Quantité (litres)</label><input type="number" value={oilQty} onChange={e=>setOilQty(e.target.value)} step="0.5" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Prix total (€)</label><input type="number" value={price} onChange={e=>setPrice(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div>
+            <label style={S.lbl}>Filtre à huile changé ?</label>
+            <div style={{display:"flex",gap:7,marginTop:4}}>
+              <button className={`tb ${filterChanged?"tg":""}`} onClick={()=>setFilterChanged(true)}>✅ Oui</button>
+              <button className={`tb ${!filterChanged?"tr2":""}`} onClick={()=>setFilterChanged(false)}>❌ Non</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>🔄 Intervalle de vidange</h3>
+        <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:8}}>
+          {INTERVAL_OPTIONS.map(opt=>(
+            <button key={opt.km} className={`tb ${interval===opt.km?"tg":""}`} onClick={()=>setInterval(opt.km)}>{opt.label}</button>
+          ))}
+        </div>
+        {nextMileage&&(
+          <div style={{padding:"10px 13px",background:"#0f1a00",border:"1px solid #4CAF5033",borderRadius:7}}>
+            <span style={{fontSize:12,color:"#888"}}>Prochain changement recommandé : </span>
+            <strong style={{color:"#4CAF50",fontFamily:"monospace",fontSize:15}}>{fmt(nextMileage)} km</strong>
+          </div>
+        )}
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>🧑‍🔧 Mécanicien & Boutique</h3>
+        <div style={S.fg2}>
+          <div><label style={S.lbl}>Nom du mécanicien</label><input value={mechName} onChange={e=>setMechName(e.target.value)} placeholder="Nom…" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Téléphone mécanicien</label><input value={mechPhone} onChange={e=>setMechPhone(e.target.value)} placeholder="+XXX…" type="tel" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Nom de la boutique</label><input value={shopName} onChange={e=>setShopName(e.target.value)} placeholder="Boutique…" style={S.inp} className="inp"/></div>
+          <div><label style={S.lbl}>Téléphone boutique</label><input value={shopPhone} onChange={e=>setShopPhone(e.target.value)} placeholder="+XXX…" type="tel" style={S.inp} className="inp"/></div>
+        </div>
+      </div>
+
+      <div style={S.sec}>
+        <h3 style={S.sh}>📸 Photo de la facture</h3>
+        <input ref={photoRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/>
+        <div className="photobox" onClick={()=>photoRef.current.click()}>
+          {photo?<img src={photo} className="photopreview" alt="Facture"/>:<><div style={{fontSize:32,marginBottom:6}}>📷</div><div style={{fontSize:13,color:"#666"}}>Photographier la facture de vidange</div></>}
+        </div>
+        {photo&&<button onClick={()=>setPhoto(null)} style={{marginTop:6,background:"none",border:"1px solid #333",borderRadius:5,color:"#666",padding:"5px 12px",cursor:"pointer",fontSize:11}}>🗑️ Supprimer</button>}
+      </div>
+
+      <div style={S.sec}>
+        <label style={S.lbl}>Notes</label>
+        <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Observations, remarques…" style={{...S.inp,height:65,resize:"vertical"}} className="inp"/>
+      </div>
+
+      <button onClick={handleSubmit} className="sb">💾 Enregistrer la vidange</button>
+    </div>
+  );
+}
+
+// ── Historique Réparations ────────────────────────────────────────
+function RepairHistory({repairs,delRepair}){
+  const [filter,setFilter]=useState("");
+  const filtered=repairs.filter(r=>!filter||(r.system_name||"").includes(filter)||(r.part_name||"").toLowerCase().includes(filter.toLowerCase())||(r.description||"").toLowerCase().includes(filter.toLowerCase()));
+  const total=filtered.reduce((s,r)=>s+(+r.total_cost||0),0);
+  const INTCOLORS={"🔄 Remplacement total de la pièce":"#FF5722","🔧 Réparation / Soudure":"#FF9800","⚙️ Réglage / Modification":"#2196F3","🛢️ Entretien / Nettoyage":"#4CAF50","🔍 Diagnostic uniquement":"#9C27B0","🧰 Autre intervention":"#607D8B"};
+  const getColor=t=>INTCOLORS[t]||"#888";
+  return(
+    <div>
+      <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="🔍 Rechercher par pièce, système, description…" className="searchbox" style={{...S.inp,marginBottom:10}}/>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span style={{fontSize:12,color:"#666"}}>{filtered.length} réparation(s)</span>
+        <span style={{fontFamily:"monospace",color:"#FF5722",fontSize:14,fontWeight:700}}>Total : {fmtCur(total)}</span>
+      </div>
+      {filtered.length===0&&<div style={{textAlign:"center",color:"#444",padding:40,fontSize:13}}>Aucune réparation enregistrée</div>}
+      {filtered.map(r=>(
+        <div key={r.id} className="rcard">
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,flexWrap:"wrap",gap:6}}>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:"#ccc",marginBottom:3}}>{r.part_name}</div>
+              {r.system_name&&<div style={{fontSize:11,color:"#666"}}>{r.system_name}{r.subsystem_name?` › ${r.subsystem_name}`:""}</div>}
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontFamily:"monospace",fontSize:16,fontWeight:700,color:"#FF5722"}}>{fmtCur(+r.total_cost||0)}</div>
+              <div style={{fontSize:10,color:"#555"}}>{fmtDate(r.date)}</div>
+            </div>
+          </div>
+          {r.intervention_type&&<span className="badge" style={{background:`${getColor(r.intervention_type)}22`,color:getColor(r.intervention_type),border:`1px solid ${getColor(r.intervention_type)}44`,marginBottom:7}}>{r.intervention_type}</span>}
+          {r.description&&<div style={{fontSize:12,color:"#888",marginBottom:7,lineHeight:1.4}}>{r.description}</div>}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:5,marginBottom:7}}>
+            {(+r.price_part>0)&&<div style={{fontSize:11,color:"#666"}}>🔩 Pièce : <span style={{color:"#ccc"}}>{fmtCur(+r.price_part)}</span></div>}
+            {(+r.price_labor>0)&&<div style={{fontSize:11,color:"#666"}}>🔧 MO : <span style={{color:"#ccc"}}>{fmtCur(+r.price_labor)}</span></div>}
+            {r.mechanic_name&&<div style={{fontSize:11,color:"#666"}}>🧑 {r.mechanic_name} {r.mechanic_phone&&<span style={{color:"#4CAF50"}}>{r.mechanic_phone}</span>}</div>}
+            {r.shop_name&&<div style={{fontSize:11,color:"#666"}}>🏪 {r.shop_name} {r.shop_phone&&<span style={{color:"#4CAF50"}}>{r.shop_phone}</span>}</div>}
+          </div>
+          {r.invoice_photo&&<img src={r.invoice_photo} style={{width:"100%",maxHeight:150,objectFit:"cover",borderRadius:5,marginBottom:6}} alt="Facture"/>}
+          {r.notes&&<div style={{fontSize:11,color:"#555",fontStyle:"italic"}}>{r.notes}</div>}
+          <div style={{marginTop:8,textAlign:"right"}}>
+            <button onClick={()=>{if(confirm("Supprimer cette réparation ?"))delRepair(r.id);}} style={{background:"none",border:"1px solid #333",borderRadius:5,color:"#555",padding:"4px 10px",cursor:"pointer",fontSize:11}}>🗑️ Supprimer</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Historique Vidanges ───────────────────────────────────────────
+function OilHistory({oilChanges,delOil}){
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span style={{fontSize:12,color:"#666"}}>{oilChanges.length} vidange(s)</span>
+        <span style={{fontFamily:"monospace",color:"#2196F3",fontSize:14,fontWeight:700}}>Total : {fmtCur(oilChanges.reduce((s,o)=>s+(+o.price||0),0))}</span>
+      </div>
+      {oilChanges.length===0&&<div style={{textAlign:"center",color:"#444",padding:40,fontSize:13}}>Aucune vidange enregistrée</div>}
+      {oilChanges.map(o=>(
+        <div key={o.id} className="ocard">
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,flexWrap:"wrap",gap:6}}>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:"#ccc",marginBottom:3}}>🛢️ Vidange — {fmt(o.mileage)} km</div>
+              <div style={{fontSize:11,color:"#666"}}>{o.oil_type} · {o.oil_quantity}L {o.filter_changed?"· Filtre changé ✅":""}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontFamily:"monospace",fontSize:16,fontWeight:700,color:"#2196F3"}}>{fmtCur(+o.price||0)}</div>
+              <div style={{fontSize:10,color:"#555"}}>{fmtDate(o.date)}</div>
+            </div>
+          </div>
+          <div style={{padding:"7px 10px",background:"#0a0f1a",borderRadius:6,marginBottom:8,fontSize:12}}>
+            <span style={{color:"#888"}}>Prochain changement : </span>
+            <strong style={{color:"#4CAF50",fontFamily:"monospace"}}>{fmt(o.next_mileage)} km</strong>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:5,marginBottom:6}}>
+            {o.mechanic_name&&<div style={{fontSize:11,color:"#666"}}>🧑 {o.mechanic_name} {o.mechanic_phone&&<span style={{color:"#4CAF50"}}>{o.mechanic_phone}</span>}</div>}
+            {o.shop_name&&<div style={{fontSize:11,color:"#666"}}>🏪 {o.shop_name} {o.shop_phone&&<span style={{color:"#4CAF50"}}>{o.shop_phone}</span>}</div>}
+          </div>
+          {o.invoice_photo&&<img src={o.invoice_photo} style={{width:"100%",maxHeight:150,objectFit:"cover",borderRadius:5,marginBottom:6}} alt="Facture"/>}
+          {o.notes&&<div style={{fontSize:11,color:"#555",fontStyle:"italic"}}>{o.notes}</div>}
+          <div style={{marginTop:8,textAlign:"right"}}>
+            <button onClick={()=>{if(confirm("Supprimer cette vidange ?"))delOil(o.id);}} style={{background:"none",border:"1px solid #333",borderRadius:5,color:"#555",padding:"4px 10px",cursor:"pointer",fontSize:11}}>🗑️ Supprimer</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Prix des pièces ───────────────────────────────────────────────
+function PriceStats({repairs}){
+  const [filterSys,setFilterSys]=useState("");
+  const stats={};
+  repairs.forEach(r=>{
+    if(!r.part_name)return;
+    const key=r.part_name;
+    if(!stats[key])stats[key]={part:r.part_name,sys:r.system_name,sub:r.subsystem_name,prices:[],count:0,last:null};
+    if(+r.price_part>0){stats[key].prices.push(+r.price_part);stats[key].count++;}
+    if(!stats[key].last||r.date>stats[key].last.date)stats[key].last={date:r.date,price:+r.price_part||0,total:+r.total_cost||0};
+  });
+  const entries=Object.values(stats).filter(s=>!filterSys||s.sys===filterSys);
+  const systems=[...new Set(Object.values(stats).map(s=>s.sys).filter(Boolean))];
+  return(
+    <div>
+      <div style={{marginBottom:10}}>
+        <select value={filterSys} onChange={e=>setFilterSys(e.target.value)} style={{...S.sel,marginBottom:8}}>
+          <option value="">Tous les systèmes</option>
+          {systems.map(s=><option key={s}>{s}</option>)}
+        </select>
+      </div>
+      {entries.length===0&&<div style={{textAlign:"center",color:"#444",padding:40,fontSize:13}}>Aucune donnée de prix disponible.<br/>Enregistrez des réparations pour voir les statistiques.</div>}
+      {entries.map(s=>{
+        const min=s.prices.length>0?Math.min(...s.prices):null;
+        const max=s.prices.length>0?Math.max(...s.prices):null;
+        const avg=s.prices.length>0?Math.round(s.prices.reduce((a,b)=>a+b,0)/s.prices.length):null;
+        return(
+          <div key={s.part} style={{background:"#0d0d0d",border:"1px solid #1a1a1a",borderRadius:8,padding:12,marginBottom:7}}>
+            <div style={{fontSize:13,fontWeight:600,color:"#ccc",marginBottom:3}}>{s.part}</div>
+            {s.sys&&<div style={{fontSize:11,color:"#555",marginBottom:7}}>{s.sys}{s.sub?` › ${s.sub}`:""}</div>}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
+              {[["Dernier prix",s.last?fmtCur(s.last.price):"—","#F5C518"],["Minimum",min!==null?fmtCur(min):"—","#4CAF50"],["Maximum",max!==null?fmtCur(max):"—","#FF5722"],["Moyenne",avg!==null?fmtCur(avg):"—","#2196F3"]].map(([lb,vl,cl])=>(
+                <div key={lb} style={{textAlign:"center",padding:"7px 5px",background:"#111",borderRadius:6}}>
+                  <div style={{fontSize:9,color:"#666",marginBottom:2}}>{lb}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:cl,fontFamily:"monospace"}}>{vl}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{marginTop:6,fontSize:11,color:"#555"}}>{s.count} achat(s) enregistré(s){s.last?` · Dernier le ${fmtDate(s.last.date)}`:""}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Settings ──────────────────────────────────────────────────────
+function Settings({drivers,addDriver,removeDriver,notify,onDisconnect,supaUrl}){
+  const [nd,setNd]=useState("");
+  const handleAdd=async()=>{if(!nd.trim())return;const ok=await addDriver(nd.trim());if(ok){setNd("");notify("Chauffeur ajouté !");}};
+  return(
+    <div style={S.page}>
+      <h2 style={S.pt}>Paramètres</h2>
+      <div style={S.sec}>
+        <h3 style={S.sh}>Base de données</h3>
+        <div style={{padding:"8px 12px",background:"#111",borderRadius:7,fontSize:11,color:"#888",marginBottom:10,fontFamily:"monospace",wordBreak:"break-all"}}>🟢 <span style={{color:"#F5C518"}}>{supaUrl}</span></div>
+        <button onClick={onDisconnect} className="sb" style={{background:"#2a1a1a",border:"1px solid #FF5722",color:"#FF5722"}}>🔌 Se déconnecter</button>
+      </div>
+      <div style={S.sec}>
+        <h3 style={S.sh}>Chauffeurs</h3>
+        <div style={{marginBottom:10}}>
+          {drivers.map(d=>(
+            <div key={d} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 11px",background:"#111",borderRadius:6,marginBottom:5}}>
+              <span style={{color:"#ccc",fontSize:13}}>🧑‍✈️ {d}</span>
+              <button onClick={()=>removeDriver(d)} style={{background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:15}}>✕</button>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:7}}>
+          <input value={nd} onChange={e=>setNd(e.target.value)} placeholder="Nom du chauffeur" style={{...S.inp,flex:1}} className="inp" onKeyDown={e=>e.key==="Enter"&&handleAdd()}/>
+          <button onClick={handleAdd} className="sb" style={{margin:0,padding:"9px 18px",width:"auto"}}>+</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root=ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
