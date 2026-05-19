@@ -6,6 +6,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.kkiapay.me/k.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a0a;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh}
@@ -44,6 +45,10 @@ body{background:#0a0a0a;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-heig
 .partitem.psel{color:#F5C518;background:#1a1500;border-left-color:#F5C518;font-weight:600}
 .rcard{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:13px;margin-bottom:8px;transition:border-color .2s}
 .rcard:hover{border-color:#2a2a2a}
+.paybtn{width:100%;padding:13px;background:linear-gradient(135deg,#FF6B35,#F5C518);border:none;border-radius:8px;color:#000;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.paybtn:hover{opacity:.9}
+.paybtn:disabled{opacity:.5;cursor:not-allowed}
+.paid-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#1a3a1a;border:1px solid #4CAF50;border-radius:5px;color:#4CAF50;font-size:11px;font-weight:700}
 .ocard{background:#0d0d0d;border:1px solid #1a3a1a;border-radius:10px;padding:13px;margin-bottom:8px}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px}
 .photobox{border:2px dashed #2a2a2a;border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:6px}
@@ -202,7 +207,7 @@ function App(){
         db.get("repairs","select=*&order=date.desc,created_at.desc"),
         db.get("oil_changes","select=*&order=date.desc,created_at.desc")
       ]);
-      const dO={};dA.forEach(({date,...r})=>{dO[date]={...r,earnings:+r.earnings,expenses:+r.expenses,savings:+r.savings};});setDays(dO);
+      const dO={};dA.forEach(({date,...r})=>{dO[date]={...r,earnings:+r.earnings,expenses:+r.expenses,savings:+r.savings,payment_status:r.payment_status||null,transaction_id:r.transaction_id||null};});setDays(dO);
       const oO={};oA.forEach(({week_id,income_goal,savings_goal,spending_budget,notes})=>{oO[week_id]={incomeGoal:+income_goal,savingsGoal:+savings_goal,spendingBudget:+spending_budget,notes};});setObjectives(oO);
       if(drvA.length>0)setDrivers(drvA.map(d=>d.name));
       setRepairs(repA);setOilChanges(oilA);
@@ -409,7 +414,7 @@ function Dashboard({days,objectives,oilChanges}){
             <div key={d} className={`dc ${isT?"dt":""} ${e?.worked?"dw":""}`}>
               <div style={{fontSize:9,color:"#555",fontWeight:700}}>{DAYS[i]}</div>
               <div style={{fontSize:17,fontWeight:700,color:"#ccc",margin:"1px 0"}}>{new Date(d).getDate()}</div>
-              {e?.worked&&<><div style={{fontSize:11,color:"#F5C518",fontFamily:"monospace",fontWeight:700}}>{fmtCur(e.earnings)}</div><div style={{fontSize:9,color:"#666"}}>{e.driver}</div></>}
+              {e?.worked&&<><div style={{fontSize:11,color:"#F5C518",fontFamily:"monospace",fontWeight:700}}>{fmtCur(e.earnings)}</div><div style={{fontSize:9,color:"#666"}}>{e.driver}</div>{e.payment_status==="paid"&&<div style={{fontSize:8,color:"#4CAF50"}}>✅ Payé</div>}</> }
               {e&&!e.worked&&<div style={{fontSize:10,color:"#444"}}>Repos</div>}
               {!e&&<div style={{fontSize:16,color:"#222"}}>—</div>}
             </div>
@@ -431,7 +436,34 @@ function DailyEntry({days,saveDay,drivers,selDate,setSelDate,notify}){
   const [reason,setReason]=useState(ex.reason||"");
   const [notes,setNotes]=useState(ex.notes||"");
   useEffect(()=>{const e=days[selDate]||{};setWorked(e.worked??true);setDriver(e.driver||drivers[0]||"");setEarnings(e.earnings||"");setExpenses(e.expenses||"");setSavings(e.savings||"");setReason(e.reason||"");setNotes(e.notes||"");},[selDate]);
-  const save=async()=>{await saveDay(selDate,{worked,driver,earnings:Number(earnings)||0,expenses:Number(expenses)||0,savings:Number(savings)||0,reason,notes});notify("✅ Journée enregistrée !");};
+  const [payStatus,setPayStatus]=useState(ex.payment_status||null);
+  const [txId,setTxId]=useState(ex.transaction_id||null);
+
+  const save=async()=>{
+    await saveDay(selDate,{worked,driver,earnings:Number(earnings)||0,expenses:Number(expenses)||0,savings:Number(savings)||0,reason,notes,payment_status:payStatus,transaction_id:txId});
+    notify("✅ Journée enregistrée !");
+  };
+
+  const handlePay=()=>{
+    const amt=Number(savings)||0;
+    if(amt<=0){notify("⚠️ Veuillez d'abord saisir un montant de mise en caisse","error");return;}
+    if(typeof openKkiapayWidget==="undefined"){notify("⚠️ Kkiapay non chargé, vérifiez votre connexion","error");return;}
+    openKkiapayWidget({
+      amount:amt,
+      key:"5b709930532411f19ea9232acccec6d0",
+      sandbox:true,
+      name:"Taxi Finance — Mise en caisse",
+      data:selDate
+    });
+    if(typeof addSuccessListener!=="undefined"){
+      addSuccessListener((resp)=>{
+        setPayStatus("paid");
+        setTxId(resp.transactionId||resp.transaction_id||"TX-"+Date.now());
+        notify("✅ Paiement confirmé ! ID: "+(resp.transactionId||""));
+        saveDay(selDate,{worked,driver,earnings:Number(earnings)||0,expenses:Number(expenses)||0,savings:Number(savings)||0,reason,notes,payment_status:"paid",transaction_id:resp.transactionId||""});
+      });
+    }
+  };
   const net=(Number(earnings)||0)-(Number(expenses)||0)-(Number(savings)||0);
   const wd=daysOfWeek(startOfWeek(selDate));
   return(
@@ -467,6 +499,14 @@ function DailyEntry({days,saveDay,drivers,selDate,setSelDate,notify}){
           <div><label style={S.lbl}>Recettes (€)</label><input type="number" value={earnings} onChange={e=>setEarnings(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
           <div><label style={S.lbl}>Dépenses (carburant, frais…) (€)</label><input type="number" value={expenses} onChange={e=>setExpenses(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
           <div><label style={S.lbl}>Mise en caisse (€)</label><input type="number" value={savings} onChange={e=>setSavings(e.target.value)} placeholder="0" style={S.inp} className="inp"/></div>
+          <div style={{gridColumn:"1 / -1"}}>
+            {payStatus==="paid"
+              ? <div className="paid-badge" style={{marginBottom:6}}>✅ Paiement Mobile Money confirmé — ID : {txId}</div>
+              : <button className="paybtn" onClick={handlePay} disabled={!savings||Number(savings)<=0}>
+                  <span>📱</span><span>Payer la mise en caisse via Mobile Money</span>
+                </button>
+            }
+          </div>
           <div style={{gridColumn:"1 / -1"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#111",border:"1px solid #2a2a2a",borderRadius:8,padding:"10px 13px"}}>
               <span style={{color:"#888",fontSize:12}}>Net (recettes − dépenses − économies)</span>
