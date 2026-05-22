@@ -183,8 +183,8 @@ select.fi option{background:var(--s1)}
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────
 // ⚠️ Remplace ces deux valeurs avec les tiennes depuis supabase.com
-const SUPABASE_URL  = 'https://vpxxwfetegsnrcgcdddw.supabase.co';
-const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZweHh3ZmV0ZWdzbnJjZ2NkZGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTM0NDksImV4cCI6MjA5NTAyOTQ0OX0.oY3As1dur834gUGfzqv7Va0tLV6BSWEau-kA5mrRdlM';
+const SUPABASE_URL  = 'https://VOTRE_PROJET.supabase.co';
+const SUPABASE_KEY  = 'VOTRE_ANON_KEY';
 </script>
 
 <script type="text/babel">
@@ -1216,4 +1216,103 @@ function TrashModal({close}){
   const [loading,setLoading]=useState(true);
   useEffect(()=>{
     sb.from('deletion_log').select('*').eq('user_id',uid).is('restored_at',null).gt('restore_deadline',new Date().toISOString()).order('deleted_at',{ascending:false})
-      
+            .then(({data})=>{setLogs(data||[]);setLoading(false);});
+  },[]);
+  return(<Modal title="🗑 Corbeille (30 jours)" close={close}>
+    {loading&&<div style={{color:'var(--tx3)',textAlign:'center',padding:20}}>Chargement...</div>}
+    {!loading&&!logs.length&&<div className="empty"><div className="empty-ico">✨</div>Corbeille vide</div>}
+    {logs.map(l=>{
+      const tx=l.entity_data?.transaction;
+      const daysLeft=Math.max(0,Math.ceil((new Date(l.restore_deadline)-new Date())/86400000));
+      return(
+        <div key={l.id} className="trash-item">
+          <div className="trash-info">
+            <div className="trash-name">{tx?.description||'—'}</div>
+            <div className="trash-meta">{fmt(tx?.total_amount||0)} FCFA • {daysLeft}j restants</div>
+          </div>
+          <button className="btn btn-g" style={{width:'auto',padding:'6px 12px',fontSize:12}} onClick={()=>restoreTx(l.id)}>Restaurer</button>
+        </div>
+      );
+    })}
+  </Modal>);
+}
+
+// SETTINGS
+function SettingsModal({close}){
+  const {session,updateDeletePwd,closeMonth}=useApp();
+  const [newPwd,setNewPwd]=useState('');
+  const [showPwdForm,setShowPwdForm]=useState(false);
+  async function savePwd(){
+    if(!newPwd||newPwd.length<4){toast('Minimum 4 caractères','r');return;}
+    await updateDeletePwd(newPwd);
+    setShowPwdForm(false);setNewPwd('');
+  }
+  async function doClose(){
+    if(!confirm('Clôturer le mois en cours ?')) return;
+    await closeMonth(); close();
+  }
+  return(<Modal title="⚙️ Paramètres" close={close}>
+    <div className="sett-row" onClick={()=>sb.auth.signOut()}>
+      <div><div className="sett-lbl">🚪 Déconnexion</div><div className="sett-sub">{session.user.email}</div></div>
+    </div>
+    <div className="sett-row" onClick={()=>setShowPwdForm(!showPwdForm)}>
+      <div><div className="sett-lbl">🔒 Mot de passe de suppression</div>
+        <div className="sett-sub">Requis pour supprimer une transaction</div></div>
+    </div>
+    {showPwdForm&&<div style={{marginBottom:12}}>
+      <div className="fg"><label className="fl">Nouveau mot de passe</label>
+        <input className="fi" type="password" value={newPwd} onChange={e=>setNewPwd(e.target.value)} placeholder="Min 4 caractères"/></div>
+      <button className="btn btn-g" onClick={savePwd}>Enregistrer</button>
+    </div>}
+    <div className="sett-row" onClick={doClose} style={{borderColor:'#2e1808'}}>
+      <div><div className="sett-lbl" style={{color:'var(--orange)'}}>📅 Clôturer le mois</div>
+        <div className="sett-sub">Archiver et démarrer un nouveau mois</div></div>
+    </div>
+  </Modal>);
+}
+
+// ROOT APP
+function App(){
+  const [session,setSession]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [connError,setConnError]=useState(false);
+
+  useEffect(()=>{
+    const timeout=setTimeout(()=>{setLoading(false);setConnError(true);},8000);
+    sb.auth.getSession().then(({data:{session},error})=>{
+      clearTimeout(timeout);
+      if(error){setConnError(true);}
+      else{setSession(session);}
+      setLoading(false);
+    }).catch(()=>{clearTimeout(timeout);setConnError(true);setLoading(false);});
+    const {data:{subscription}}=sb.auth.onAuthStateChange((_,s)=>setSession(s));
+    return()=>{subscription.unsubscribe();clearTimeout(timeout);};
+  },[]);
+
+  if(loading) return <div className="loading"><div className="spin"></div>Connexion à Supabase...</div>;
+
+  if(connError) return(
+    <div className="auth-wrap">
+      <div className="auth-box">
+        <div className="auth-logo"><div className="logo">Mon<em>Budget</em><span className="ver">PRO</span></div></div>
+        <div style={{background:'#180808',border:'1px solid #300c0c',borderRadius:12,padding:16,marginBottom:16}}>
+          <div style={{color:'#ff8888',fontWeight:700,marginBottom:8}}>❌ Erreur de connexion Supabase</div>
+          <div style={{color:'#ff9999',fontSize:12,lineHeight:1.8}}>
+            Vérifie dans MonBudgetPro.html :<br/>
+            <strong>SUPABASE_URL</strong> = https://vpxxwfetegsnrcgcdddw.supabase.co<br/>
+            <strong>SUPABASE_KEY</strong> = ta clé anon (eyJ...)
+          </div>
+        </div>
+        <button className="btn btn-g" onClick={()=>window.location.reload()}>🔄 Réessayer</button>
+      </div>
+    </div>
+  );
+
+  if(!session) return <AuthScreen/>;
+  return <MainApp session={session}/>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
