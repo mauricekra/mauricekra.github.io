@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MonBudget Pro</title>
+<!-- 
+  ╔══════════════════════════════════════════════════════════╗
+  ║  MonBudget Pro — Configuration                          ║
+  ║  1. Crée un projet sur https://supabase.com             ║
+  ║  2. Exécute monbudget_schema.sql dans SQL Editor        ║
+  ║  3. Remplace SUPABASE_URL et SUPABASE_ANON_KEY ci-bas   ║
+  ║  4. Héberge sur https://netlify.com (glisser-déposer)   ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#07090f;--s1:#0d1020;--s2:#131728;--s3:#1a1f35;--bd:#1e2340;--bd2:#252a42;--tx:#dde3f5;--tx2:#8890b8;--tx3:#4a5078;--green:#00d68f;--blue:#4d90fe;--red:#ff4f4f;--orange:#ffb74d;--purple:#9575cd;--teal:#26c6da;--r:12px;--rs:8px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body,#root{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{overflow:hidden}
+/* LAYOUT */
+.app{display:flex;flex-direction:column;height:100vh;max-width:520px;margin:0 auto}
+.hdr{background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 18px 0;flex-shrink:0}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.logo{font-size:19px;font-weight:800;letter-spacing:-.5px}.logo em{color:var(--green);font-style:normal}
+.logo .ver{font-size:10px;background:#0a1e14;border:1px solid #0d3820;color:var(--green);border-radius:5px;padding:2px 7px;margin-left:6px;font-weight:600}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.hdr-month{font-size:12px;background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:4px 11px;color:var(--tx2);cursor:pointer}
+.hdr-user{font-size:12px;color:var(--tx3);cursor:pointer}
+.hdr-user:hover{color:var(--red)}
+.tabs{display:flex}
+.tab{flex:1;padding:10px 0;font-size:12px;text-align:center;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all .2s;letter-spacing:.3px}
+.tab.on{color:var(--green);border-bottom-color:var(--green)}
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;padding:16px 16px 80px;display:none}
+.page.on{display:block}
+/* HERO */
+.hero{background:linear-gradient(135deg,#0b1828,#081e1a);border:1px solid #182a38;border-radius:var(--r);padding:18px;margin-bottom:14px}
+.hero-top{display:flex;justify-content:space-between;margin-bottom:14px}
+.hlbl{font-size:10px;color:#3a5870;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.hbig{font-size:26px;font-weight:700;color:var(--green);line-height:1}
+.hsub{font-size:11px;color:#2a4858;margin-top:3px}
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hg{background:#05080e;border-radius:9px;padding:9px 11px;border:1px solid #121828}
+.hglbl{font-size:9px;color:#2a3458;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.hgval{font-size:15px;font-weight:700}
+/* UNASSIGNED */
+.ubar{border-radius:9px;padding:11px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;font-weight:500}
+.ubar.ok{background:#081a0e;border:1px solid #0c2c18;color:var(--green)}
+.ubar.warn{background:#1a1508;border:1px solid #2c2008;color:var(--orange)}
+/* SECTION */
+.sec{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.seclbl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .18s}
+.card:hover{border-color:var(--bd2)}
+.card-body{padding:12px 14px}
+.card-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.card-left{display:flex;align-items:center;gap:10px}
+.ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-name{font-size:14px;font-weight:500}
+.card-sub{font-size:11px;color:var(--tx3);margin-top:1px}
+.card-right{text-align:right}
+.card-amt{font-size:15px;font-weight:600}
+.card-rem{font-size:11px;margin-top:1px}
+.prog-track{height:4px;background:#101428}
+.prog-fill{height:100%;transition:width .4s}
+/* TX */
+.tx{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px}
+.tx-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.tx-body{flex:1;min-width:0}
+.tx-desc{font-size:14px;font-weight:500}
+.tx-meta{font-size:11px;color:var(--tx3);margin-top:2px}
+.tx-srcs{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+.src-badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500}
+.tx-right{flex-shrink:0;text-align:right}
+.tx-amt{font-size:15px;font-weight:700;color:var(--red)}
+.ico-btn{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:5px;color:var(--tx3);font-size:15px}
+.ico-btn:hover{color:var(--red);background:#1f0808}
+/* DEBT */
+.dc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
+.dc-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.dc-name{font-size:14px;font-weight:600}
+.dc-note{font-size:11px;color:var(--tx3);margin-top:2px}
+.dc-amt{font-size:19px;font-weight:700;color:var(--red)}
+.dc-prog{display:flex;align-items:center;gap:10px;margin-top:10px}
+.dc-track{flex:1;height:5px;background:#121828;border-radius:99px;overflow:hidden}
+.dc-fill{height:100%;border-radius:99px}
+.dc-pct{font-size:11px;color:var(--tx3);min-width:30px;text-align:right}
+.dc-monthly{font-size:11px;color:var(--orange);margin-top:6px}
+/* FAB */
+.fab{position:fixed;bottom:72px;right:calc(50% - 248px);width:50px;height:50px;border-radius:50%;background:var(--green);color:#000;font-size:24px;border:none;cursor:pointer;box-shadow:0 4px 18px rgba(0,214,143,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+.fab:hover{transform:scale(1.07)}
+@media(max-width:520px){.fab{right:20px}}
+/* BNAV */
+.bnav{background:var(--s1);border-top:1px solid var(--bd);display:flex;flex-shrink:0}
+.bnav-btn{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;color:var(--tx3);transition:color .2s}
+.bnav-btn.on{color:var(--green)}
+.bnav-ico{font-size:20px}
+.bnav-lbl{font-size:9px;letter-spacing:.3px;text-transform:uppercase}
+/* MODAL */
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.ovl.on{display:flex}
+.sheet{background:var(--s1);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:20px 20px 32px;max-height:90vh;overflow-y:auto;animation:sup .22s ease;position:relative}
+@keyframes sup{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sh-handle{width:36px;height:4px;background:var(--bd);border-radius:99px;margin:0 auto 18px}
+.sh-title{font-size:17px;font-weight:700;margin-bottom:16px}
+.sh-close{position:absolute;right:18px;top:20px;background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--tx2);cursor:pointer;font-size:13px}
+/* FORM */
+.fg{margin-bottom:12px}
+.fl{font-size:12px;color:var(--tx2);margin-bottom:5px;display:block;letter-spacing:.3px}
+.fi{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;font-size:14px;color:var(--tx);outline:none;transition:border .18s;font-family:inherit}
+.fi:focus{border-color:var(--green)}
+select.fi option{background:var(--s1)}
+.fi-row{display:flex;gap:8px}
+/* MULTI SRC */
+.cov-block{background:#05080e;border:1px solid #121828;border-radius:9px;padding:11px 13px;margin-bottom:12px}
+.cov-top{display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px}
+.cov-track{height:5px;background:var(--s3);border-radius:99px;overflow:hidden}
+.cov-fill{height:100%;border-radius:99px;transition:width .2s}
+.src-row{display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:9px 11px;margin-bottom:7px}
+.src-sel{flex:1;background:transparent;border:none;color:var(--tx);font-size:13px;outline:none;font-family:inherit}
+.src-sel option{background:var(--s1)}
+.src-inp{width:110px;background:transparent;border:none;border-left:1px solid var(--bd);padding-left:9px;color:var(--green);font-size:14px;font-weight:600;outline:none;font-family:inherit;text-align:right}
+/* ALERTS */
+.al{border-radius:8px;padding:10px 13px;font-size:13px;margin-bottom:12px;line-height:1.5}
+.al-r{background:#180808;border:1px solid #2e0c0c;color:#ff8888}
+.al-y{background:#181008;border:1px solid #2e2008;color:var(--orange)}
+.al-g{background:#08180c;border:1px solid #0c2c14;color:var(--green)}
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;border:none;width:100%;font-family:inherit;transition:all .15s}
+.btn-g{background:var(--green);color:#000}.btn-g:hover{filter:brightness(1.1)}
+.btn-gh{background:var(--s2);color:var(--tx2);border:1px solid var(--bd)}.btn-gh:hover{background:var(--s3)}
+.btn-r{background:#180808;color:var(--red);border:1px solid #2e0c0c}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+/* TAGS */
+.tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600;margin-left:4px;vertical-align:middle}
+/* AUTH */
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
+.auth-box{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:28px 24px;width:100%;max-width:380px}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-logo .logo{font-size:24px}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--s2);border-radius:9px;padding:3px}
+.auth-tab{flex:1;padding:8px;text-align:center;font-size:13px;border-radius:7px;cursor:pointer;color:var(--tx3);transition:all .18s;background:none;border:none;font-family:inherit}
+.auth-tab.on{background:var(--s1);color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+/* EMPTY */
+.empty{text-align:center;padding:36px 20px;color:var(--tx3)}
+.empty-ico{font-size:36px;margin-bottom:10px}
+/* SETTINGS */
+.sett-row{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.sett-row:hover{border-color:var(--bd2)}
+.sett-lbl{font-size:14px;font-weight:500}
+.sett-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;color:var(--tx3);font-size:14px}
+.spin{width:32px;height:32px;border:2px solid var(--s3);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* TOAST */
+.toast-el{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:999;padding:10px 20px;border-radius:9px;font-size:13px;font-weight:500;min-width:160px;text-align:center;pointer-events:none;display:none}
+/* CORBEILLE */
+.trash-item{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.trash-info{flex:1}
+.trash-name{font-size:13px;font-weight:500}
+.trash-meta{font-size:11px;color:var(--tx3);margin-top:2px}
+/* ICON GRID */
+.ico-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px}
+.ico-opt{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px;text-align:center;font-size:20px;cursor:pointer}
+.ico-opt.sel{border-color:var(--green);background:#08180c}
+/* COLOR SWATCHES */
+.clr-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.clr-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+.clr-dot.sel{border-color:#fff}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading"><div class="spin"></div>Chargement...</div></div>
+<div class="toast-el" id="toastEl"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+// ⚠️ Remplace ces deux valeurs avec les tiennes depuis supabase.com
+const SUPABASE_URL  = 'https://vpxxwfetegsnrcgcdddw.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZweHh3ZmV0ZWdzbnJjZ2NkZGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTM0NDksImV4cCI6MjA5NTAyOTQ0OX0.oY3As1dur834gUGfzqv7Va0tLV6BSWEau-kA5mrRdlM';
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── UTILS ────────────────────────────────────────────────────────
+const fmt   = n => new Intl.NumberFormat('fr-FR').format(Math.round(n || 0));
+const nowDate = () => new Date().toISOString().split('T')[0];
+const COLORS = ['#00d68f','#4d90fe','#ff4f4f','#ffb74d','#9575cd','#26c6da','#ffd54f','#f48fb1','#80cbc4','#ff7043'];
+const ICONS  = ['📦','🏠','🚗','🍽️','🌐','⚡','🧴','👨‍👩‍👧','🛡️','🎓','💊','👗','🎉','📱','💰','🔧','✈️','📚','⛪','🏦','🙏','👤','💳','🛒'];
+
+function toast(msg, type='g'){
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  const t={g:['#08180c','#00d68f'],r:['#180808','#ff4f4f'],y:['#181008','#ffb74d']};
+  const [bg,c]=(t[type]||t.g);
+  el.style.background=bg; el.style.color=c; el.style.border=`1px solid ${c}44`;
+  el.style.display='block';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',2500);
+}
+
+function monthName(m){
+  return new Date(m.year,m.month-1,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+}
+
+// ── CONTEXT ──────────────────────────────────────────────────────
+const Ctx = createContext(null);
+const useApp = () => useContext(Ctx);
+
+// ── AUTH SCREEN ──────────────────────────────────────────────────
+function AuthScreen(){
+  const [mode,setMode]   = useState('login');
+  const [email,setEmail] = useState('');
+  const [pw,setPw]       = useState('');
+  const [busy,setBusy]   = useState(false);
+
+  async function submit(){
+    if(!email||!pw){toast('Remplis tous les champs','r');return;}
+    setBusy(true);
+    if(mode==='login'){
+      const{error}=await sb.auth.signInWithPassword({email,password:pw});
+      if(error){toast(error.message,'r');}
+    } else {
+      const{error}=await sb.auth.signUp({email,password:pw});
+      if(error){toast(error.message,'r');}
+      else toast('Vérifie ton email pour confirmer le compte.','y');
+    }
+    setBusy(false);
+  }
+
+  return(
+    <div className="auth-wrap">
+      <div className="auth-box">
+        <div className="auth-logo">
+          <div className="logo">Mon<em>Budget</em><span className="ver">PRO</span></div>
+          <div style={{fontSize:12,color:'var(--tx3)',marginTop:6}}>Gestion budgétaire intelligente</div>
+        </div>
+        <div className="auth-tabs">
+          <button className={`auth-tab${mode==='login'?' on':''}`} onClick={()=>setMode('login')}>Connexion</button>
+          <button className={`auth-tab${mode==='register'?' on':''}`} onClick={()=>setMode('register')}>Créer un compte</button>
+        </div>
+        <div className="fg"><label className="fl">Email</label>
+          <input className="fi" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="ton@email.com"/></div>
+        <div className="fg"><label className="fl">Mot de passe</label>
+          <input className="fi" type="password" value={pw} onChange={e=>setPw(e.target.value)} placeholder="••••••••" onKeyDown={e=>e.key==='Enter'&&submit()}/></div>
+        <button className="btn btn-g" onClick={submit} disabled={busy}>
+          {busy?'...':(mode==='login'?'Se connecter':'Créer le compte')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── APP PROVIDER ─────────────────────────────────────────────────
+function AppProvider({session, children}){
+  const uid = session.user.id;
+  const [month,setMonth]     = useState(null);
+  const [incomes,setIncomes] = useState([]);
+  const [envelopes,setEnvs]  = useState([]);
+  const [allocs,setAllocs]   = useState({});   // {envId: amount}
+  const [txs,setTxs]         = useState([]);
+  const [txSrcs,setTxSrcs]   = useState({});   // {txId: [{envId,amount}]}
+  const [debts,setDebts]     = useState([]);
+  const [debtPays,setDPays]  = useState([]);
+  const [profile,setProfile] = useState(null);
+  const [loading,setLoading] = useState(true);
+
+  // Computed
+  const totalAvail  = incomes.reduce((s,i)=>s+Number(i.amount),0);
+  const totalAlloc  = Object.values(allocs).reduce((s,a)=>s+Number(a),0);
+  const totalSpent  = txs.filter(t=>!t.deleted_at).reduce((s,t)=>s+Number(t.total_amount),0);
+  const unassigned  = Math.max(0, totalAvail - totalAlloc);
+
+  async function loadAll(){
+    setLoading(true);
+    try{
+      // Get or create current month
+      const now = new Date();
+      const y=now.getFullYear(), m=now.getMonth()+1;
+      let {data:months}=await sb.from('months').select('*').eq('user_id',uid).eq('year',y).eq('month',m);
+      let curMonth = months?.[0];
+      if(!curMonth){
+        const {data:nm}=await sb.from('months').insert({user_id:uid,year:y,month:m,is_current:true}).select().single();
+        curMonth=nm;
+      }
+      setMonth(curMonth);
+
+      // Income
+      const {data:inc}=await sb.from('income_sources').select('*').eq('month_id',curMonth.id).order('created_at');
+      setIncomes(inc||[]);
+
+      // Envelopes
+      const {data:envs}=await sb.from('envelopes').select('*').eq('user_id',uid).order('sort_order');
+      setEnvs(envs||[]);
+
+      // Allocations
+      if(envs?.length){
+        const {data:alc}=await sb.from('envelope_allocations').select('*').eq('month_id',curMonth.id);
+        const alcMap={};
+        (alc||[]).forEach(a=>alcMap[a.envelope_id]=Number(a.allocated));
+        setAllocs(alcMap);
+      }
+
+      // Transactions
+      const {data:transactions}=await sb.from('transactions').select('*').eq('month_id',curMonth.id).order('created_at',{ascending:false});
+      setTxs(transactions||[]);
+
+      // Transaction sources
+      if(transactions?.length){
+        const txIds=transactions.map(t=>t.id);
+        const {data:srcs}=await sb.from('transaction_sources').select('*').in('transaction_id',txIds);
+        const srcMap={};
+        (srcs||[]).forEach(s=>{if(!srcMap[s.transaction_id])srcMap[s.transaction_id]=[];srcMap[s.transaction_id].push(s);});
+        setTxSrcs(srcMap);
+      }
+
+      // Debts
+      const {data:dbt}=await sb.from('debts').select('*').eq('user_id',uid).eq('is_active',true).order('created_at');
+      setDebts(dbt||[]);
+
+      // Debt payments this month
+      if(dbt?.length && curMonth){
+        const {data:dp}=await sb.from('debt_payments').select('*').eq('month_id',curMonth.id);
+        setDPays(dp||[]);
+      }
+
+      // Profile
+      const {data:prof}=await sb.from('profiles').select('*').eq('id',uid).single();
+      setProfile(prof);
+
+    } catch(e){ toast('Erreur de chargement','r'); console.error(e); }
+    setLoading(false);
+  }
+
+  useEffect(()=>{ loadAll(); },[]);
+
+  // ── MUTATIONS ──────────────────────────────────────────────────
+
+  async function addIncome(label,amount,recurring){
+    const {data,error}=await sb.from('income_sources').insert({user_id:uid,month_id:month.id,label,amount:Number(amount),is_recurring:recurring}).select().single();
+    if(error){toast('Erreur','r');return;}
+    setIncomes(p=>[...p,data]);
+    toast('Revenu ajouté ✓','g');
+  }
+
+  async function deleteIncome(id){
+    await sb.from('income_sources').delete().eq('id',id);
+    setIncomes(p=>p.filter(i=>i.id!==id));
+    toast('Revenu supprimé','g');
+  }
+
+  async function addEnvelope(name,icon,color,amount){
+    const {data:env,error}=await sb.from('envelopes').insert({user_id:uid,name,icon,color,sort_order:envelopes.length}).select().single();
+    if(error){toast('Erreur','r');return;}
+    setEnvs(p=>[...p,env]);
+    if(Number(amount)>0){
+      const {data:alc}=await sb.from('envelope_allocations').upsert({envelope_id:env.id,month_id:month.id,allocated:Number(amount)}).select().single();
+      setAllocs(p=>({...p,[env.id]:Number(amount)}));
+    }
+    toast('Enveloppe créée ✓','g');
+  }
+
+  async function deleteEnvelope(id, delPwd){
+    if(!checkDelPwd(delPwd)) return false;
+    await sb.from('envelopes').delete().eq('id',id);
+    setEnvs(p=>p.filter(e=>e.id!==id));
+    const newAllocs={...allocs}; delete newAllocs[id];
+    setAllocs(newAllocs);
+    toast('Enveloppe supprimée','g');
+    return true;
+  }
+
+  async function updateAllocation(envId, newAmount, sources){
+    // sources = [{envId, amount}] where to take from (max 3)
+    const na = Number(newAmount);
+    const cur = Number(allocs[envId]||0);
+    const diff = na - cur;
+    if(diff > unassigned + 0.01){
+      // Need to take from sources
+      let totalFromSrc = sources.reduce((s,src)=>s+Number(src.amount),0);
+      if(totalFromSrc < diff - unassigned - 0.01){ toast('Sources insuffisantes','r'); return; }
+      // Deduct from sources
+      const newA = {...allocs};
+      for(const src of sources){
+        newA[src.envId] = (Number(newA[src.envId]||0)) - Number(src.amount);
+        await sb.from('envelope_allocations').upsert({envelope_id:src.envId,month_id:month.id,allocated:newA[src.envId]});
+      }
+      newA[envId] = na;
+      await sb.from('envelope_allocations').upsert({envelope_id:envId,month_id:month.id,allocated:na});
+      setAllocs(newA);
+    } else {
+      await sb.from('envelope_allocations').upsert({envelope_id:envId,month_id:month.id,allocated:na});
+      setAllocs(p=>({...p,[envId]:na}));
+    }
+    toast('Budget mis à jour ✓','g');
+  }
+
+  async function addTransaction(desc, total, zoneEnvId, sources){
+    // Validate zero-sum: sources sum === total
+    const srcSum = sources.reduce((s,src)=>s+Number(src.amount),0);
+    if(Math.abs(srcSum-total)>0.01){toast('La somme des sources doit égaler le total','r');return false;}
+    // Check each source has enough
+    for(const src of sources){
+      const avail = (Number(allocs[src.envId]||0)) - getEnvSpent(src.envId);
+      if(Number(src.amount) > avail + 0.01){toast(`Solde insuffisant dans ${envelopes.find(e=>e.id===src.envId)?.name||'?'}`, 'r');return false;}
+    }
+    const {data:tx,error}=await sb.from('transactions').insert({
+      user_id:uid, month_id:month.id, description:desc,
+      total_amount:total, zone_envelope_id:zoneEnvId||null,
+      transaction_date:nowDate()
+    }).select().single();
+    if(error){toast('Erreur','r');return false;}
+    // Insert sources
+    const srcRows = sources.map(s=>({transaction_id:tx.id,envelope_id:s.envId,amount:Number(s.amount)}));
+    await sb.from('transaction_sources').insert(srcRows);
+    setTxs(p=>[tx,...p]);
+    setTxSrcs(p=>({...p,[tx.id]:srcRows}));
+    toast('Dépense enregistrée ✓','g');
+    return true;
+  }
+
+  function getEnvSpent(envId){
+    return txs.filter(t=>!t.deleted_at).reduce((s,t)=>{
+      const srcs = txSrcs[t.id]||[];
+      const src = srcs.find(s=>s.envelope_id===envId);
+      return s + (src ? Number(src.amount) : 0);
+    },0);
+  }
+
+  function checkDelPwd(pwd){
+    if(!profile) return false;
+    if(pwd !== profile.delete_password){ toast('Mot de passe incorrect','r'); return false; }
+    return true;
+  }
+
+  async function softDeleteTx(txId, pwd){
+    if(!checkDelPwd(pwd)) return false;
+    const tx = txs.find(t=>t.id===txId);
+    if(!tx) return false;
+    // Log deletion
+    await sb.from('deletion_log').insert({
+      user_id:uid, entity_type:'transaction', entity_id:txId,
+      entity_data:{transaction:tx, sources:txSrcs[txId]||[]}
+    });
+    await sb.from('transactions').update({deleted_at:new Date().toISOString()}).eq('id',txId);
+    setTxs(p=>p.map(t=>t.id===txId?{...t,deleted_at:new Date().toISOString()}:t));
+    toast('Transaction supprimée — restaurable 30 jours','y');
+    return true;
+  }
+
+  async function restoreTx(logId){
+    const {data:log}=await sb.from('deletion_log').select('*').eq('id',logId).single();
+    if(!log){toast('Introuvable','r');return;}
+    if(new Date()>new Date(log.restore_deadline)){toast('Délai de restauration expiré (30 jours)','r');return;}
+    await sb.from('transactions').update({deleted_at:null}).eq('id',log.entity_id);
+    await sb.from('deletion_log').update({restored_at:new Date().toISOString()}).eq('id',logId);
+    toast('Transaction restaurée ✓','g');
+    await loadAll();
+  }
+
+  async function addDebt(data){
+    const {data:d,error}=await sb.from('debts').insert({user_id:uid,...data}).select().single();
+    if(error){toast('Erreur','r');return;}
+    setDebts(p=>[...p,d]);
+    toast('Dette ajoutée ✓','g');
+  }
+
+  async function payDebt(debtId, amount, envId, pwd){
+    if(!checkDelPwd(pwd)&&false) return; // no pwd required for payments
+    const debt=debts.find(d=>d.id===debtId);
+    if(!debt) return;
+    // Record as transaction
+    const ok = await addTransaction(`Paiement — ${debt.creditor_name}`, amount, envId, [{envId,amount}]);
+    if(!ok) return;
+    // Update debt remaining
+    const newRem = Math.max(0, Number(debt.remaining_amount) - Number(amount));
+    await sb.from('debts').update({remaining_amount:newRem}).eq('id',debtId);
+    setDebts(p=>p.map(d=>d.id===debtId?{...d,remaining_amount:newRem}:d));
+    // Log payment
+    await sb.from('debt_payments').insert({debt_id:debtId,month_id:month.id,amount:Number(amount),payment_date:nowDate()});
+    toast('Paiement enregistré ✓','g');
+  }
+
+  async function deleteDebt(id, pwd){
+    if(!checkDelPwd(pwd)) return false;
+    await sb.from('debts').update({is_active:false}).eq('id',id);
+    setDebts(p=>p.filter(d=>d.id!==id));
+    toast('Dette supprimée','g');
+    return true;
+  }
+
+  async function updateDeletePwd(newPwd){
+    await sb.from('profiles').update({delete_password:newPwd}).eq('id',uid);
+    setProfile(p=>({...p,delete_password:newPwd}));
+    toast('Mot de passe mis à jour ✓','g');
+  }
+
+  async function closeMonth(){
+    await sb.from('months').update({is_current:false,closed_at:new Date().toISOString()}).eq('id',month.id);
+    await loadAll();
+    toast('Mois clôturé — nouveau mois créé ✓','g');
+  }
+
+  const ctx = {
+    uid, session, month, incomes, envelopes, allocs, txs, txSrcs, debts, debtPays, profile, loading,
+    totalAvail, totalAlloc, totalSpent, unassigned,
+    getEnvSpent,
+    addIncome, deleteIncome,
+    addEnvelope, deleteEnvelope, updateAllocation,
+    addTransaction, softDeleteTx, restoreTx,
+    addDebt, payDebt, deleteDebt,
+    updateDeletePwd, closeMonth, reload:loadAll
+  };
+
+  return <Ctx.Provider value={ctx}>{children}</Ctx.Provider>;
+}
+
+// ── MAIN APP ─────────────────────────────────────────────────────
+function MainApp({session}){
+  const [tab,setTab] = useState('dashboard');
+
+  return(
+    <AppProvider session={session}>
+      <Inner tab={tab} setTab={setTab}/>
+    </AppProvider>
+  );
+}
+
+function Inner({tab,setTab}){
+  const {loading,month} = useApp();
+  const [modal,setModal] = useState(null);
+  const openModal = m => setModal(m);
+  const closeModal = () => setModal(null);
+
+  if(loading) return <div className="loading"><div className="spin"></div>Chargement...</div>;
+
+  return(
+    <div className="app">
+      <div className="hdr">
+        <div className="hdr-top">
+          <div className="logo">Mon<em>Budget</em><span className="ver">PRO</span></div>
+          <div className="hdr-right">
+            <div className="hdr-month">{month?monthName(month):'—'}</div>
+            <div className="hdr-user" onClick={()=>openModal('settings')}>⚙️</div>
+          </div>
+        </div>
+        <div className="tabs">
+          {[['dashboard','📊 Bord'],['budget','💼 Budget'],['expenses','💸 Dépenses'],['debts','💳 Dettes']].map(([k,l])=>(
+            <button key={k} className={`tab${tab===k?' on':''}`} onClick={()=>setTab(k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="pages">
+        {tab==='dashboard' && <div className="page on"><Dashboard openModal={openModal}/></div>}
+        {tab==='budget'    && <div className="page on"><BudgetPage openModal={openModal}/></div>}
+        {tab==='expenses'  && <div className="page on"><ExpensesPage openModal={openModal}/></div>}
+        {tab==='debts'     && <div className="page on"><DebtsPage openModal={openModal}/></div>}
+      </div>
+
+      <button className="fab" onClick={()=>openModal('expense')}>+</button>
+
+      <div className="bnav">
+        {[['dashboard','📊','Bord'],['budget','💼','Budget'],['expenses','💸','Dépenses'],['debts','💳','Dettes']].map(([k,i,l])=>(
+          <button key={k} className={`bnav-btn${tab===k?' on':''}`} onClick={()=>setTab(k)}>
+            <span className="bnav-ico">{i}</span><span className="bnav-lbl">{l}</span>
+          </button>
+        ))}
+      </div>
+
+      {modal==='expense'    && <ExpenseModal    close={closeModal}/>}
+      {modal==='add-income' && <IncomeModal     close={closeModal}/>}
+      {modal==='add-env'    && <EnvModal        close={closeModal}/>}
+      {modal==='add-debt'   && <DebtModal       close={closeModal}/>}
+      {modal==='pay-debt'   && <PayDebtModal    close={closeModal} debtId={modal._debtId}/>}
+      {modal==='move'       && <MoveModal       close={closeModal}/>}
+      {modal==='trash'      && <TrashModal      close={closeModal}/>}
+      {modal==='settings'   && <SettingsModal   close={closeModal}/>}
+      {modal && modal.type==='pay-debt' && <PayDebtModal close={closeModal} debtId={modal.debtId}/>}
+      {modal && modal.type==='env-detail' && <EnvDetailModal close={closeModal} envId={modal.envId} setTab={()=>{}}/>}
+    </div>
+  );
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+function Dashboard({openModal}){
+  const {totalAvail,totalAlloc,totalSpent,unassigned,debts,envelopes,allocs,getEnvSpent,debtPays,month} = useApp();
+  const alertEnvs = envelopes.filter(e=>{
+    const alc=Number(allocs[e.id]||0); const sp=getEnvSpent(e.id);
+    return alc>0 && sp/alc>0.8;
+  });
+  const totalDebt = debts.reduce((s,d)=>s+Number(d.remaining_amount),0);
+  const dueSoon = debts.filter(d=>{
+    const paid = debtPays.filter(p=>p.debt_id===d.id).reduce((s,p)=>s+Number(p.amount),0);
+    return Number(d.monthly_payment)>0 && paid<Number(d.monthly_payment);
+  });
+
+  return(<div>
+    <div className="hero">
+      <div className="hero-top">
+        <div><div className="hlbl">Disponible ce mois</div>
+          <div className="hbig">{fmt(totalAvail)} FCFA</div>
+          <div className="hsub">Alloué {fmt(totalAlloc)} • Dépensé {fmt(totalSpent)}</div>
+        </div>
+        <button className="btn-gh" style={{fontSize:12,padding:'6px 10px',borderRadius:8,cursor:'pointer',border:'1px solid var(--bd)',background:'var(--s2)',color:'var(--tx2)'}} onClick={()=>openModal('move')}>🔄 Déplacer</button>
+      </div>
+      <div className="hero-grid">
+        <div className="hg"><div className="hglbl">Non assigné</div>
+          <div className="hgval" style={{color:unassigned===0?'var(--green)':unassigned>0?'var(--orange)':'var(--red)'}}>{fmt(unassigned)}</div></div>
+        <div className="hg"><div className="hglbl">Dettes totales</div>
+          <div className="hgval" style={{color:'var(--red)'}}>{fmt(totalDebt)}</div></div>
+        <div className="hg"><div className="hglbl">Enveloppes</div>
+          <div className="hgval">{envelopes.length}</div></div>
+      </div>
+    </div>
+
+    {unassigned>0&&<div className="ubar warn" onClick={()=>openModal('budget')}>
+      <span>💡 {fmt(unassigned)} FCFA non assignés</span><span style={{fontSize:11}}>Assigner →</span>
+    </div>}
+    {unassigned===0&&totalAlloc>0&&<div className="ubar ok">
+      <span>✅ Budget 100% assigné</span><span style={{fontSize:11}}>Parfait</span>
+    </div>}
+
+    {dueSoon.length>0&&<><div className="sec"><div className="seclbl">⚠️ Versements en attente ce mois</div></div>
+    {dueSoon.map(d=>(
+      <div key={d.id} className="card" style={{borderColor:'#2e1808'}} onClick={()=>openModal({type:'pay-debt',debtId:d.id})}>
+        <div className="card-body" style={{display:'flex',justifyContent:'space-between'}}>
+          <div><div className="card-name">{d.creditor_name}</div>
+            <div className="card-sub">Versement mensuel : {fmt(d.monthly_payment)} FCFA</div></div>
+          <div style={{color:'var(--orange)',fontWeight:600,fontSize:14}}>Payer →</div>
+        </div>
+      </div>
+    ))}</>}
+
+    {alertEnvs.length>0&&<><div className="sec"><div className="seclbl">🔴 Enveloppes en alerte</div></div>
+    {alertEnvs.map(e=>{
+      const alc=Number(allocs[e.id]||0),sp=getEnvSpent(e.id),pct=Math.min(100,(sp/alc)*100);
+      return(<div key={e.id} className="card" style={{borderColor:'#2e0808'}}>
+        <div className="card-body" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div className="ico" style={{background:e.color+'20',fontSize:17}}>{e.icon}</div>
+            <div><div className="card-name">{e.name}</div>
+              <div className="card-sub">{fmt(sp)} / {fmt(alc)} FCFA</div></div>
+          </div>
+          <div style={{color:pct>=100?'var(--red)':'var(--orange)',fontWeight:700}}>{Math.round(pct)}%</div>
+        </div>
+        <div className="prog-track"><div className="prog-fill" style={{width:pct+'%',background:pct>=100?'var(--red)':'var(--orange)'}}></div></div>
+      </div>);
+    })}</>}
+  </div>);
+}
+
+// ── BUDGET PAGE ──────────────────────────────────────────────────
+function BudgetPage({openModal}){
+  const {incomes,envelopes,allocs,getEnvSpent,totalAvail,totalAlloc,unassigned} = useApp();
+
+  return(<div>
+    <div className="hero" style={{padding:14,marginBottom:14}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <div><div className="hlbl">Total disponible</div>
+          <div className="hbig">{fmt(totalAvail)} FCFA</div></div>
+        <div style={{color:unassigned===0?'var(--green)':unassigned>0?'var(--orange)':'var(--red)',textAlign:'right'}}>
+          <div style={{fontSize:11,color:'var(--tx3)',marginBottom:2}}>Non assigné</div>
+          <div style={{fontSize:18,fontWeight:700}}>{fmt(unassigned)} FCFA</div>
+        </div>
+      </div>
+    </div>
+
+    <div className="sec">
+      <div className="seclbl">Sources de revenus</div>
+      <button className="btn-gh" style={{fontSize:11,padding:'4px 10px',borderRadius:7,cursor:'pointer',border:'1px solid var(--bd)',background:'var(--s2)',color:'var(--tx2)'}} onClick={()=>openModal('add-income')}>+ Ajouter</button>
+    </div>
+    {incomes.map(inc=>(
+      <div key={inc.id} className="card">
+        <div className="card-body" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div><div className="card-name">💰 {inc.label}</div>
+            <div className="card-sub">{inc.is_recurring?'Récurrent':'Ponctuel'}</div></div>
+          <div style={{fontWeight:700,color:'var(--green)',fontSize:16}}>{fmt(inc.amount)} FCFA</div>
+        </div>
+      </div>
+    ))}
+    {!incomes.length&&<div className="empty"><div className="empty-ico">💰</div>Aucun revenu ce mois<br/><small>Ajoute tes sources de revenus</small></div>}
+
+    <div className="sec" style={{marginTop:20}}>
+      <div className="seclbl">Enveloppes budgétaires</div>
+      <button className="btn-gh" style={{fontSize:11,padding:'4px 10px',borderRadius:7,cursor:'pointer',border:'1px solid var(--bd)',background:'var(--s2)',color:'var(--tx2)'}} onClick={()=>openModal('add-env')}>+ Nouvelle</button>
+    </div>
+    {envelopes.map(env=>{
+      const alc=Number(allocs[env.id]||0), sp=getEnvSpent(env.id);
+      const pct=alc>0?Math.min(100,(sp/alc)*100):0;
+      const over=alc>0&&sp>alc;
+      const bc=over?'var(--red)':pct>80?'var(--orange)':env.color;
+      return(
+        <div key={env.id} className="card" onClick={()=>openModal({type:'env-detail',envId:env.id})}>
+          <div className="card-body">
+            <div className="card-row">
+              <div className="card-left">
+                <div className="ico" style={{background:env.color+'20'}}>{env.icon}</div>
+                <div><div className="card-name">{env.name}</div>
+                  <div className="card-sub">Budget : {fmt(alc)} FCFA</div></div>
+              </div>
+              <div className="card-right">
+                <div className="card-amt" style={{color:over?'var(--red)':'var(--tx)'}}>{fmt(sp)} FCFA</div>
+                <div className="card-rem" style={{color:over?'var(--red)':'var(--tx3)'}}>
+                  {alc===0?'Non alloué':over?`⚠️ +${fmt(sp-alc)}`:`Reste ${fmt(alc-sp)}`}
+                </div>
+              </div>
+            </div>
+          </div>
+          {alc>0&&<div className="prog-track"><div className="prog-fill" style={{width:pct+'%',background:bc}}></div></div>}
+        </div>
+      );
+    })}
+    {!envelopes.length&&<div className="empty"><div className="empty-ico">📦</div>Aucune enveloppe<br/><small>Crée tes catégories de dépenses</small></div>}
+  </div>);
+}
+
+// ── EXPENSES PAGE ────────────────────────────────────────────────
+function ExpensesPage({openModal}){
+  const {txs,txSrcs,envelopes} = useApp();
+  const active = txs.filter(t=>!t.deleted_at);
+  const [delModal,setDelModal] = useState(null);
+
+  return(<div>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+      <div style={{fontSize:14,color:'var(--tx2)'}}>{active.length} dépense{active.length!==1?'s':''}</div>
+      <button className="btn-gh" style={{fontSize:11,padding:'4px 10px',borderRadius:7,cursor:'pointer',border:'1px solid var(--bd)',background:'var(--s2)',color:'var(--tx2)'}} onClick={()=>openModal('trash')}>🗑 Corbeille</button>
+    </div>
+    {!active.length&&<div className="empty"><div className="empty-ico">📭</div>Aucune dépense ce mois</div>}
+    {active.map(tx=>{
+      const srcs=txSrcs[tx.id]||[];
+      const zone=envelopes.find(e=>e.id===tx.zone_envelope_id);
+      return(
+        <div key={tx.id} className="tx">
+          <div className="tx-dot" style={{background:zone?.color||'var(--tx3)'}}></div>
+          <div className="tx-body">
+            <div className="tx-desc">{tx.description}</div>
+            <div className="tx-meta">{zone?.name||'—'} • {tx.transaction_date}</div>
+            <div className="tx-srcs">
+              {srcs.map(s=>{
+                const env=envelopes.find(e=>e.id===s.envelope_id);
+                return <span key={s.id} className="src-badge" style={{background:(env?.color||'#888')+'22',color:env?.color||'#888'}}>{env?.icon} {env?.name} {fmt(s.amount)}</span>;
+              })}
+            </div>
+          </div>
+          <div className="tx-right">
+            <div className="tx-amt">-{fmt(tx.total_amount)}</div>
+            <button className="ico-btn" onClick={e=>{e.stopPropagation();setDelModal(tx.id);}}>🗑</button>
+          </div>
+        </div>
+      );
+    })}
+    {delModal&&<DeleteModal txId={delModal} close={()=>setDelModal(null)}/>}
+  </div>);
+}
+
+// ── DEBTS PAGE ───────────────────────────────────────────────────
+function DebtsPage({openModal}){
+  const {debts,debtPays} = useApp();
+  const [payModal,setPayModal] = useState(null);
+  const [delModal,setDelModal] = useState(null);
+  const total = debts.reduce((s,d)=>s+Number(d.remaining_amount),0);
+
+  return(<div>
+    <div className="sec" style={{marginTop:0}}>
+      <div className="seclbl">Mes dettes ({debts.length})</div>
+      <button className="btn-gh" style={{fontSize:11,padding:'4px 10px',borderRadius:7,cursor:'pointer',border:'1px solid var(--bd)',background:'var(--s2)',color:'var(--tx2)'}} onClick={()=>openModal('add-debt')}>+ Ajouter</button>
+    </div>
+
+    {!debts.length&&<div className="empty"><div className="empty-ico">🎉</div>Aucune dette enregistrée</div>}
+    {debts.map(d=>{
+      const pct=d.initial_amount>0?Math.min(100,100-(Number(d.remaining_amount)/Number(d.initial_amount))*100):0;
+      const paidThisMonth=debtPays.filter(p=>p.debt_id===d.id).reduce((s,p)=>s+Number(p.amount),0);
+      const due=Number(d.monthly_payment)>0&&paidThisMonth<Number(d.monthly_payment);
+      return(
+        <div key={d.id} className="dc" style={{borderColor:due?'#2e1808':'var(--bd)'}}>
+          <div className="dc-row">
+            <div>
+              <div className="dc-name">{d.creditor_name}</div>
+              {d.notes&&<div className="dc-note">{d.notes}</div>}
+              {d.monthly_payment>0&&<div className="dc-monthly">{due?'⚠️':'✅'} Versement mensuel : {fmt(d.monthly_payment)} FCFA{due?' — À payer':' — Payé'}</div>}
+            </div>
+            <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+              <div className="dc-amt">{fmt(d.remaining_amount)}</div>
+              <button className="ico-btn" style={{marginTop:3}} onClick={()=>setDelModal(d.id)}>🗑</button>
+            </div>
+          </div>
+          {d.initial_amount>0&&<div className="dc-prog">
+            <div className="dc-track"><div className="dc-fill" style={{width:pct+'%',background:d.color||'var(--green)'}}></div></div>
+            <div className="dc-pct">{Math.round(pct)}%</div>
+          </div>}
+          <button className="btn btn-g" style={{marginTop:10,padding:'9px 12px',fontSize:13}} onClick={()=>setPayModal(d.id)}>Effectuer un versement</button>
+        </div>
+      );
+    })}
+
+    {total>0&&<div style={{background:'#180808',border:'1px solid #300c0c',borderRadius:var(--r)||12,padding:'14px 16px',display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:8}}>
+      <span style={{color:'#ff8888',fontSize:13}}>Total dettes restantes</span>
+      <span style={{color:'var(--red)',fontSize:20,fontWeight:700}}>{fmt(total)} FCFA</span>
+    </div>}
+
+    {payModal&&<PayDebtModal debtId={payModal} close={()=>setPayModal(null)}/>}
+    {delModal&&<DeleteDebtModal debtId={delModal} close={()=>setDelModal(null)}/>}
+  </div>);
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════════════════════
+
+function Modal({title,close,children}){
+  return(
+    <div className="ovl on" onClick={e=>e.target.className==='ovl on'&&close()}>
+      <div className="sheet">
+        <div className="sh-handle"></div>
+        <button className="sh-close" onClick={close}>✕</button>
+        <div className="sh-title">{title}</div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// INCOME
+function IncomeModal({close}){
+  const {addIncome}=useApp();
+  const [label,setLabel]=useState('');
+  const [amount,setAmount]=useState('');
+  const [rec,setRec]=useState(false);
+  async function submit(){
+    if(!label||!amount){toast('Remplis tous les champs','r');return;}
+    await addIncome(label,parseFloat(amount),rec);
+    close();
+  }
+  return(<Modal title="💰 Nouveau revenu" close={close}>
+    <div className="fg"><label className="fl">Libellé</label><input className="fi" value={label} onChange={e=>setLabel(e.target.value)} placeholder="Ex: Salaire, Prime..."/></div>
+    <div className="fg"><label className="fl">Montant (FCFA)</label><input className="fi" type="number" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0"/></div>
+    <label style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'var(--tx2)',marginBottom:14,cursor:'pointer'}}>
+      <input type="checkbox" checked={rec} onChange={e=>setRec(e.target.checked)}/> Revenu récurrent (chaque mois)
+    </label>
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-g" style={{flex:2}} onClick={submit}>Ajouter</button>
+    </div>
+  </Modal>);
+}
+
+// ENVELOPE
+function EnvModal({close}){
+  const {addEnvelope,unassigned}=useApp();
+  const [name,setName]=useState('');
+  const [icon,setIcon]=useState('📦');
+  const [color,setColor]=useState('#00d68f');
+  const [amount,setAmount]=useState('');
+
+  async function submit(){
+    if(!name){toast('Donne un nom','r');return;}
+    const a=parseFloat(amount)||0;
+    if(a>unassigned+0.01){toast(`Maximum assignable : ${fmt(unassigned)} FCFA`,'r');return;}
+    await addEnvelope(name,icon,color,a);
+    close();
+  }
+  return(<Modal title="🏷️ Nouvelle enveloppe" close={close}>
+    <div className="al al-g" style={{fontSize:12}}>Le budget ne peut pas dépasser l'argent non assigné ({fmt(unassigned)} FCFA).</div>
+    <div className="fg"><label className="fl">Nom</label><input className="fi" value={name} onChange={e=>setName(e.target.value)} placeholder="Ex: Loyer, Alimentation..."/></div>
+    <div className="fg"><label className="fl">Icône</label>
+      <div className="ico-grid">{ICONS.map(i=><div key={i} className={`ico-opt${icon===i?' sel':''}`} onClick={()=>setIcon(i)}>{i}</div>)}</div>
+    </div>
+    <div className="fg"><label className="fl">Couleur</label>
+      <div className="clr-grid">{COLORS.map(c=><div key={c} className={`clr-dot${color===c?' sel':''}`} style={{background:c}} onClick={()=>setColor(c)}></div>)}</div>
+    </div>
+    <div className="fg"><label className="fl">Budget ce mois (FCFA) — max {fmt(unassigned)}</label>
+      <input className="fi" type="number" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0"/></div>
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-g" style={{flex:2}} onClick={submit}>Créer</button>
+    </div>
+  </Modal>);
+}
+
+// ENV DETAIL
+function EnvDetailModal({close,envId}){
+  const {envelopes,allocs,getEnvSpent,unassigned,updateAllocation,deleteEnvelope,txs,txSrcs}=useApp();
+  const env=envelopes.find(e=>e.id===envId);
+  const [newAmt,setNewAmt]=useState('');
+  const [srcs,setSrcs]=useState([{envId:'',amount:''}]);
+  const [delPwd,setDelPwd]=useState('');
+  const [delMode,setDelMode]=useState(false);
+  if(!env) return null;
+  const alc=Number(allocs[env.id]||0), sp=getEnvSpent(env.id);
+  const pct=alc>0?Math.min(100,(sp/alc)*100):0;
+  const envTxs=txs.filter(t=>!t.deleted_at&&(txSrcs[t.id]||[]).some(s=>s.envelope_id===envId));
+
+  async function saveAlloc(){
+    const na=parseFloat(newAmt);
+    if(isNaN(na)||na<0){toast('Montant invalide','r');return;}
+    if(na>alc&&(na-alc)>unassigned){
+      // Need sources
+      const validSrcs=srcs.filter(s=>s.envId&&s.amount);
+      await updateAllocation(envId,na,validSrcs.map(s=>({envId:s.envId,amount:parseFloat(s.amount)})));
+    } else {
+      await updateAllocation(envId,na,[]);
+    }
+    close();
+  }
+
+  async function doDelete(){
+    const ok=await deleteEnvelope(envId,delPwd);
+    if(ok) close();
+  }
+
+  const needSrc=parseFloat(newAmt)>alc&&(parseFloat(newAmt)-alc)>unassigned;
+
+  return(<Modal title={`${env.icon} ${env.name}`} close={close}>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>
+      {[['Alloué',fmt(alc),'var(--blue)'],['Dépensé',fmt(sp),'var(--tx)'],['Restant',fmt(alc-sp),alc-sp<0?'var(--red)':'var(--green)']].map(([l,v,c])=>(
+        <div key={l} className="hg"><div className="hglbl">{l}</div><div className="hgval" style={{color:c}}>{v}</div></div>
+      ))}
+    </div>
+    {alc>0&&<div className="prog-track" style={{borderRadius:6,height:7,marginBottom:14}}>
+      <div className="prog-fill" style={{width:pct+'%',borderRadius:6,background:pct>=100?'var(--red)':pct>80?'var(--orange)':env.color}}></div>
+    </div>}
+
+    <div className="fg"><label className="fl">Modifier le budget alloué (FCFA)</label>
+      <input className="fi" type="number" value={newAmt} onChange={e=>setNewAmt(e.target.value)} placeholder={fmt(alc)}/></div>
+    {needSrc&&<>
+      <div className="al al-y" style={{fontSize:12}}>Il te manque {fmt((parseFloat(newAmt)||0)-alc-unassigned)} FCFA. Sélectionne jusqu'à 3 sources :</div>
+      {srcs.map((s,i)=>(
+        <SourceRow key={i} src={s} excludeId={envId} onChange={v=>{const ns=[...srcs];ns[i]=v;setSrcs(ns);}} onRemove={srcs.length>1?()=>setSrcs(p=>p.filter((_,j)=>j!==i)):null}/>
+      ))}
+      {srcs.length<3&&<button className="btn btn-gh" style={{marginBottom:12}} onClick={()=>setSrcs(p=>[...p,{envId:'',amount:''}])}>+ Ajouter source</button>}
+    </>}
+    <button className="btn btn-g" style={{marginBottom:8}} onClick={saveAlloc}>Mettre à jour le budget</button>
+
+    {!delMode?<button className="btn btn-r" onClick={()=>setDelMode(true)}>🗑 Supprimer cette enveloppe</button>
+    :<><div className="al al-r" style={{fontSize:12}}>Saisis le mot de passe de suppression pour confirmer.</div>
+      <div className="fg"><input className="fi" type="password" value={delPwd} onChange={e=>setDelPwd(e.target.value)} placeholder="Mot de passe de suppression"/></div>
+      <div className="btn-row">
+        <button className="btn btn-gh" style={{flex:1}} onClick={()=>setDelMode(false)}>Annuler</button>
+        <button className="btn btn-r" style={{flex:2}} onClick={doDelete}>Confirmer la suppression</button>
+      </div>
+    </>}
+
+    {envTxs.length>0&&<><div style={{borderTop:'1px solid var(--bd)',margin:'14px 0'}}></div>
+    <div className="seclbl" style={{marginBottom:8}}>Transactions ({envTxs.length})</div>
+    {envTxs.slice(0,5).map(tx=>(
+      <div key={tx.id} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--bd)'}}>
+        <div style={{fontSize:13}}>{tx.description}</div>
+        <div style={{fontSize:13,fontWeight:600,color:'var(--red)'}}>-{fmt(tx.total_amount)}</div>
+      </div>
+    ))}</>}
+  </Modal>);
+}
+
+function SourceRow({src,excludeId,onChange,onRemove}){
+  const {envelopes,allocs,getEnvSpent}=useApp();
+  const available=envelopes.filter(e=>e.id!==excludeId);
+  return(
+    <div className="src-row" style={{marginBottom:8}}>
+      <select className="src-sel" value={src.envId} onChange={e=>onChange({...src,envId:e.target.value})}>
+        <option value="">Choisir...</option>
+        {available.map(e=>{
+          const av=Number(allocs[e.id]||0)-getEnvSpent(e.id);
+          return <option key={e.id} value={e.id}>{e.icon} {e.name} — dispo {fmt(av)}</option>;
+        })}
+      </select>
+      <input className="src-inp" type="number" placeholder="0" value={src.amount||''} onChange={e=>onChange({...src,amount:e.target.value})}/>
+      {onRemove&&<button className="ico-btn" onClick={onRemove}>✕</button>}
+    </div>
+  );
+}
+
+// EXPENSE (MULTI-SOURCE)
+function ExpenseModal({close}){
+  const {envelopes,allocs,getEnvSpent,addTransaction}=useApp();
+  const [desc,setDesc]=useState('');
+  const [total,setTotal]=useState('');
+  const [zoneId,setZoneId]=useState('');
+  const [srcs,setSrcs]=useState([{envId:'',amount:''}]);
+  const [err,setErr]=useState('');
+
+  const totalNum=parseFloat(total)||0;
+  const covered=srcs.reduce((s,src)=>s+(parseFloat(src.amount)||0),0);
+  const pct=totalNum>0?Math.min(100,(covered/totalNum)*100):0;
+
+  function onTotalChange(v){
+    setTotal(v);
+    if(srcs.length===1&&!srcs[0].amount) setSrcs([{...srcs[0],amount:v}]);
+  }
+
+  async function submit(){
+    setErr('');
+    if(!desc||!totalNum){setErr('Remplis la description et le montant.');return;}
+    if(srcs.some(s=>!s.envId)){setErr('Sélectionne une enveloppe pour chaque source.');return;}
+    if(Math.abs(covered-totalNum)>0.5){setErr(`La somme des sources (${fmt(covered)}) doit égaler le total (${fmt(totalNum)}).`);return;}
+    const ok=await addTransaction(desc,totalNum,zoneId||null,srcs.filter(s=>s.envId).map(s=>({envId:s.envId,amount:parseFloat(s.amount)})));
+    if(ok) close();
+  }
+
+  return(<Modal title="💸 Nouvelle dépense" close={close}>
+    <div className="fg"><label className="fl">Description</label>
+      <input className="fi" value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Ex: Courses, facture..."/></div>
+    <div className="fg"><label className="fl">Zone de dépense (catégorie)</label>
+      <select className="fi" value={zoneId} onChange={e=>setZoneId(e.target.value)}>
+        <option value="">Choisir une zone...</option>
+        {envelopes.map(e=><option key={e.id} value={e.id}>{e.icon} {e.name}</option>)}
+      </select></div>
+    <div className="fg"><label className="fl">Montant total (FCFA)</label>
+      <input className="fi" type="number" value={total} onChange={e=>onTotalChange(e.target.value)} placeholder="0"/></div>
+
+    <div className="al al-g" style={{fontSize:12}}>Répartis ce montant sur 1 à 3 enveloppes sources.</div>
+
+    <div className="cov-block">
+      <div className="cov-top">
+        <span style={{color:'var(--tx2)'}}>Couvert</span>
+        <span style={{fontWeight:600,color:Math.abs(covered-totalNum)<0.5?'var(--green)':'var(--orange)'}}>{fmt(covered)} / {fmt(totalNum)} FCFA</span>
+      </div>
+      <div className="cov-track"><div className="cov-fill" style={{width:pct+'%',background:pct>=100?'var(--green)':'var(--orange)'}}></div></div>
+    </div>
+
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+      <div className="seclbl">Sources ({srcs.length}/3)</div>
+      {srcs.length<3&&<button className="btn-gh" style={{fontSize:11,padding:'3px 9px',borderRadius:6,cursor:'pointer',border:'1px solid var(--bd)',background:'var(--s2)',color:'var(--tx2)'}} onClick={()=>setSrcs(p=>[...p,{envId:'',amount:''}])}>+ Source</button>}
+    </div>
+
+    {srcs.map((src,i)=>(
+      <div key={i} className="src-row">
+        <select className="src-sel" value={src.envId} onChange={e=>{const ns=[...srcs];ns[i]={...ns[i],envId:e.target.value};setSrcs(ns);}}>
+          <option value="">Choisir enveloppe...</option>
+          {envelopes.map(e=>{
+            const av=Number(allocs[e.id]||0)-getEnvSpent(e.id);
+            return <option key={e.id} value={e.id}>{e.icon} {e.name} — dispo {fmt(av)}</option>;
+          })}
+        </select>
+        <input className="src-inp" type="number" placeholder="0" value={src.amount||''} onChange={e=>{const ns=[...srcs];ns[i]={...ns[i],amount:e.target.value};setSrcs(ns);}}/>
+        {srcs.length>1&&<button className="ico-btn" onClick={()=>setSrcs(p=>p.filter((_,j)=>j!==i))}>✕</button>}
+      </div>
+    ))}
+
+    {err&&<div className="al al-r">{err}</div>}
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-g" style={{flex:2}} onClick={submit}>Enregistrer</button>
+    </div>
+  </Modal>);
+}
+
+// DEBT
+function DebtModal({close}){
+  const {addDebt}=useApp();
+  const [form,setForm]=useState({creditor_name:'',initial_amount:'',remaining_amount:'',monthly_payment:'',notes:'',color:'#ff4f4f'});
+  async function submit(){
+    if(!form.creditor_name||!form.initial_amount){toast('Remplis les champs requis','r');return;}
+    const rem=parseFloat(form.remaining_amount)||parseFloat(form.initial_amount);
+    await addDebt({...form,initial_amount:parseFloat(form.initial_amount),remaining_amount:rem,monthly_payment:parseFloat(form.monthly_payment)||0});
+    close();
+  }
+  const f=(k,v)=>setForm(p=>({...p,[k]:v}));
+  return(<Modal title="💳 Nouvelle dette" close={close}>
+    <div className="fg"><label className="fl">Créancier</label><input className="fi" value={form.creditor_name} onChange={e=>f('creditor_name',e.target.value)} placeholder="Ex: Banque, Parents..."/></div>
+    <div className="fg"><label className="fl">Montant initial (FCFA)</label><input className="fi" type="number" value={form.initial_amount} onChange={e=>f('initial_amount',e.target.value)} placeholder="0"/></div>
+    <div className="fg"><label className="fl">Montant restant (si différent)</label><input className="fi" type="number" value={form.remaining_amount} onChange={e=>f('remaining_amount',e.target.value)} placeholder="Laisser vide = même que initial"/></div>
+    <div className="fg"><label className="fl">Versement mensuel obligatoire (FCFA)</label><input className="fi" type="number" value={form.monthly_payment} onChange={e=>f('monthly_payment',e.target.value)} placeholder="0 = aucun"/></div>
+    <div className="fg"><label className="fl">Notes (taux, échéance...)</label><input className="fi" value={form.notes} onChange={e=>f('notes',e.target.value)} placeholder="Ex: 10%, fin 2031"/></div>
+    <div className="fg"><label className="fl">Couleur</label>
+      <div className="clr-grid">{COLORS.map(c=><div key={c} className={`clr-dot${form.color===c?' sel':''}`} style={{background:c}} onClick={()=>f('color',c)}></div>)}</div>
+    </div>
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-g" style={{flex:2}} onClick={submit}>Enregistrer</button>
+    </div>
+  </Modal>);
+}
+
+// PAY DEBT
+function PayDebtModal({debtId,close}){
+  const {debts,envelopes,allocs,getEnvSpent,payDebt}=useApp();
+  const debt=debts.find(d=>d.id===debtId);
+  const [amt,setAmt]=useState(debt?.monthly_payment||'');
+  const [envId,setEnvId]=useState('');
+  if(!debt) return null;
+  async function submit(){
+    if(!amt||!envId){toast('Remplis tous les champs','r');return;}
+    await payDebt(debtId,parseFloat(amt),envId,'');
+    close();
+  }
+  return(<Modal title={`💳 Payer — ${debt.creditor_name}`} close={close}>
+    <div className="al al-y" style={{fontSize:12}}>Reste à payer : {fmt(debt.remaining_amount)} FCFA{debt.monthly_payment>0?` • Versement mensuel : ${fmt(debt.monthly_payment)} FCFA`:''}</div>
+    <div className="fg"><label className="fl">Montant du versement (FCFA)</label>
+      <input className="fi" type="number" value={amt} onChange={e=>setAmt(e.target.value)}/></div>
+    <div className="fg"><label className="fl">Prélever depuis</label>
+      <select className="fi" value={envId} onChange={e=>setEnvId(e.target.value)}>
+        <option value="">Choisir une enveloppe...</option>
+        {envelopes.map(e=>{
+          const av=Number(allocs[e.id]||0)-getEnvSpent(e.id);
+          return <option key={e.id} value={e.id}>{e.icon} {e.name} — dispo {fmt(av)}</option>;
+        })}
+      </select></div>
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-g" style={{flex:2}} onClick={submit}>Valider le versement</button>
+    </div>
+  </Modal>);
+}
+
+// DELETE TX (with password)
+function DeleteModal({txId,close}){
+  const {softDeleteTx}=useApp();
+  const [pwd,setPwd]=useState('');
+  const [counting,setCounting]=useState(false);
+  const [secs,setSecs]=useState(5);
+  const ref=useRef(null);
+
+  function startCount(){
+    if(!pwd){toast('Saisis le mot de passe','r');return;}
+    setCounting(true);setSecs(5);
+    ref.current=setInterval(()=>setSecs(s=>{if(s<=1){clearInterval(ref.current);return 0;}return s-1;}),1000);
+  }
+  async function confirm(){
+    clearInterval(ref.current);
+    const ok=await softDeleteTx(txId,pwd);
+    if(ok) close();
+  }
+  useEffect(()=>()=>clearInterval(ref.current),[]);
+
+  return(<Modal title="🗑 Supprimer la dépense" close={close}>
+    <div className="al al-r">Cette action est irréversible immédiatement mais restaurable dans les 30 jours.</div>
+    <div className="fg"><label className="fl">Mot de passe de suppression</label>
+      <input className="fi" type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="••••••"/></div>
+    {!counting?<button className="btn btn-r" onClick={startCount}>Supprimer</button>
+    :<button className="btn btn-r" disabled={secs>0} onClick={confirm}>
+      {secs>0?`Attendre ${secs}s...`:'Confirmer la suppression'}
+    </button>}
+  </Modal>);
+}
+
+// DELETE DEBT
+function DeleteDebtModal({debtId,close}){
+  const {deleteDebt}=useApp();
+  const [pwd,setPwd]=useState('');
+  async function confirm(){
+    const ok=await deleteDebt(debtId,pwd);
+    if(ok) close();
+  }
+  return(<Modal title="🗑 Supprimer la dette" close={close}>
+    <div className="al al-r">Confirme avec ton mot de passe de suppression.</div>
+    <div className="fg"><input className="fi" type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="Mot de passe"/></div>
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-r" style={{flex:2}} onClick={confirm}>Supprimer</button>
+    </div>
+  </Modal>);
+}
+
+// MOVE MONEY
+function MoveModal({close}){
+  const {envelopes,allocs,getEnvSpent,unassigned,updateAllocation}=useApp();
+  const [fromId,setFromId]=useState('_unassigned');
+  const [toId,setToId]=useState('');
+  const [amt,setAmt]=useState('');
+
+  async function submit(){
+    const a=parseFloat(amt);
+    if(!toId||isNaN(a)||a<=0){toast('Paramètres invalides','r');return;}
+    if(fromId===toId){toast('Source et destination identiques','r');return;}
+    if(fromId==='_unassigned'){
+      if(a>unassigned+0.01){toast(`Non assigné insuffisant (max ${fmt(unassigned)} FCFA)`,'r');return;}
+      await updateAllocation(toId,(Number(allocs[toId]||0))+a,[]);
+    } else {
+      const fromEnv=envelopes.find(e=>e.id===fromId);
+      const avail=Number(allocs[fromId]||0)-getEnvSpent(fromId);
+      if(a>avail+0.01){toast(`Insuffisant dans "${fromEnv?.name}" (max ${fmt(avail)} FCFA)`,'r');return;}
+      await updateAllocation(fromId,(Number(allocs[fromId]||0))-a,[]);
+      await updateAllocation(toId,(Number(allocs[toId]||0))+a,[]);
+    }
+    toast('Argent déplacé ✓','g');
+    close();
+  }
+
+  return(<Modal title="🔄 Déplacer du budget" close={close}>
+    <div className="al al-g" style={{fontSize:12}}>Le total disponible reste inchangé. Seule la répartition change.</div>
+    <div className="fg"><label className="fl">De</label>
+      <select className="fi" value={fromId} onChange={e=>setFromId(e.target.value)}>
+        <option value="_unassigned">💡 Non assigné ({fmt(unassigned)} FCFA)</option>
+        {envelopes.map(e=>{
+          const av=Number(allocs[e.id]||0)-getEnvSpent(e.id);
+          return <option key={e.id} value={e.id}>{e.icon} {e.name} — dispo {fmt(av)}</option>;
+        })}
+      </select></div>
+    <div className="fg"><label className="fl">Vers</label>
+      <select className="fi" value={toId} onChange={e=>setToId(e.target.value)}>
+        <option value="">Choisir...</option>
+        {envelopes.map(e=><option key={e.id} value={e.id}>{e.icon} {e.name}</option>)}
+      </select></div>
+    <div className="fg"><label className="fl">Montant (FCFA)</label>
+      <input className="fi" type="number" value={amt} onChange={e=>setAmt(e.target.value)} placeholder="0"/></div>
+    <div className="btn-row">
+      <button className="btn btn-gh" style={{flex:1}} onClick={close}>Annuler</button>
+      <button className="btn btn-g" style={{flex:2}} onClick={submit}>Déplacer</button>
+    </div>
+  </Modal>);
+}
+
+// TRASH
+function TrashModal({close}){
+  const {uid,restoreTx}=useApp();
+  const [logs,setLogs]=useState([]);
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{
+    sb.from('deletion_log').select('*').eq('user_id',uid).is('restored_at',null).gt('restore_deadline',new Date().toISOString()).order('deleted_at',{ascending:false})
+      
